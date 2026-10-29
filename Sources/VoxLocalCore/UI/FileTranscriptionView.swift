@@ -17,8 +17,6 @@ public final class FileTranscriptionController: ObservableObject {
     @Published public private(set) var sourceURL: URL?
     @Published public private(set) var installedModels: [ModelManager.InstalledModel] = []
     @Published public var selectedModel = ""
-    @Published public var documentTitle = ""
-    @Published public var participantNames = ["", ""]
     @Published public var transcriptText = ""
     @Published public private(set) var detectedLanguage: String?
     @Published public private(set) var completedAt: Date?
@@ -50,10 +48,10 @@ public final class FileTranscriptionController: ObservableObject {
         sourceURL != nil && !selectedModel.isEmpty && !isWorking
     }
 
-    public var cleanParticipants: [String] {
-        participantNames
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
+    public var documentTitle: String {
+        let title = sourceURL?.deletingPathExtension().lastPathComponent
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return title.isEmpty ? L10n.t("file.document.untitled") : title
     }
 
     public func refreshModels() {
@@ -92,20 +90,10 @@ public final class FileTranscriptionController: ObservableObject {
 
     public func setSource(_ url: URL) {
         sourceURL = url
-        documentTitle = url.deletingPathExtension().lastPathComponent
         transcriptText = ""
         detectedLanguage = nil
         completedAt = nil
         state = .ready
-    }
-
-    public func addParticipant() {
-        participantNames.append("")
-    }
-
-    public func removeParticipant(at index: Int) {
-        guard participantNames.indices.contains(index), participantNames.count > 1 else { return }
-        participantNames.remove(at: index)
     }
 
     public func transcribe() {
@@ -177,7 +165,7 @@ public final class FileTranscriptionController: ObservableObject {
         let panel = NSSavePanel()
         panel.title = L10n.t("file.save.title")
         panel.prompt = L10n.t("file.save.button")
-        panel.nameFieldStringValue = safeDocumentName + ".rtf"
+        panel.nameFieldStringValue = documentTitle + ".rtf"
         panel.allowedContentTypes = [.rtf]
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
@@ -191,32 +179,12 @@ public final class FileTranscriptionController: ObservableObject {
         }
     }
 
-    public func participantBinding(at index: Int) -> Binding<String> {
-        Binding(
-            get: { [weak self] in
-                guard let self, self.participantNames.indices.contains(index) else { return "" }
-                return self.participantNames[index]
-            },
-            set: { [weak self] value in
-                guard let self, self.participantNames.indices.contains(index) else { return }
-                self.participantNames[index] = value
-            })
-    }
-
-    private var safeDocumentName: String {
-        let title = documentTitle.trimmingCharacters(in: .whitespacesAndNewlines)
-        return title.isEmpty ? L10n.t("file.document.untitled") : title
-    }
-
     private func documentPlainText() -> String {
-        var sections = [safeDocumentName]
+        var sections = [documentTitle]
         if let sourceURL { sections.append("\(L10n.t("file.document.source")): \(sourceURL.lastPathComponent)") }
         sections.append("\(L10n.t("file.document.model")): \(selectedModel)")
         if let completedAt {
             sections.append("\(L10n.t("file.document.date")): \(Self.dateFormatter.string(from: completedAt))")
-        }
-        if !cleanParticipants.isEmpty {
-            sections.append("\(L10n.t("file.document.participants")): \(cleanParticipants.joined(separator: ", "))")
         }
         sections.append("\n\(L10n.t("file.document.transcript"))\n\(transcriptText)")
         return sections.joined(separator: "\n")
@@ -232,7 +200,7 @@ public final class FileTranscriptionController: ObservableObject {
         paragraph.lineSpacing = 4
         paragraph.paragraphSpacing = 8
 
-        result.append(NSAttributedString(string: safeDocumentName + "\n", attributes: [.font: titleFont]))
+        result.append(NSAttributedString(string: documentTitle + "\n", attributes: [.font: titleFont]))
         if let completedAt {
             result.append(NSAttributedString(
                 string: Self.dateFormatter.string(from: completedAt) + "\n\n",
@@ -244,10 +212,6 @@ public final class FileTranscriptionController: ObservableObject {
         }
         result.append(NSAttributedString(string: "\(L10n.t("file.document.model")): ", attributes: [.font: headingFont]))
         result.append(NSAttributedString(string: selectedModel + "\n", attributes: [.font: bodyFont]))
-        if !cleanParticipants.isEmpty {
-            result.append(NSAttributedString(string: "\(L10n.t("file.document.participants")): ", attributes: [.font: headingFont]))
-            result.append(NSAttributedString(string: cleanParticipants.joined(separator: ", ") + "\n", attributes: [.font: bodyFont]))
-        }
         result.append(NSAttributedString(string: "\n\(L10n.t("file.document.transcript"))\n", attributes: [.font: headingFont]))
         result.append(NSAttributedString(string: transcriptText, attributes: [.font: bodyFont, .paragraphStyle: paragraph]))
         return result
@@ -314,7 +278,6 @@ private struct FileSetupPane: View {
             VStack(alignment: .leading, spacing: 22) {
                 FileDropZone(controller: controller)
                 ModelPickerSection(controller: controller, openSettings: openSettings)
-                ParticipantSection(controller: controller)
                 TranscriptionActionSection(controller: controller)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -407,49 +370,6 @@ private struct ModelPickerSection: View {
     }
 }
 
-private struct ParticipantSection: View {
-    @ObservedObject var controller: FileTranscriptionController
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(L10n.t("file.section.document")).font(.headline)
-            TextField(L10n.t("file.document.name"), text: $controller.documentTitle)
-            Text(L10n.t("file.participants.hint"))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            ForEach(controller.participantNames.indices, id: \.self) { index in
-                ParticipantRow(controller: controller, index: index)
-            }
-            Button(action: controller.addParticipant) {
-                Label(L10n.t("file.participant.add"), systemImage: "plus")
-            }
-            .buttonStyle(.borderless)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-private struct ParticipantRow: View {
-    @ObservedObject var controller: FileTranscriptionController
-    let index: Int
-
-    var body: some View {
-        HStack {
-            TextField(
-                L10n.t("file.participant.placeholder", index + 1),
-                text: controller.participantBinding(at: index))
-            if controller.participantNames.count > 1 {
-                Button(action: { controller.removeParticipant(at: index) }) {
-                    Image(systemName: "minus.circle")
-                }
-                .buttonStyle(.borderless)
-                .help(L10n.t("file.participant.remove"))
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
 private struct TranscriptionActionSection: View {
     @ObservedObject var controller: FileTranscriptionController
 
@@ -533,25 +453,9 @@ private struct DocumentPreview: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                Text(controller.documentTitle.isEmpty
-                     ? L10n.t("file.document.untitled")
-                     : controller.documentTitle)
+                Text(controller.documentTitle)
                     .font(.system(size: 28, weight: .bold))
                 PreviewMetadata(controller: controller)
-                if !controller.cleanParticipants.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(L10n.t("file.document.participants")).font(.headline)
-                        HStack(spacing: 8) {
-                            ForEach(controller.cleanParticipants, id: \.self) { name in
-                                Text(name)
-                                    .font(.callout.weight(.medium))
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 6)
-                                    .background(Color.accentColor.opacity(0.12), in: Capsule())
-                            }
-                        }
-                    }
-                }
                 Divider()
                 Text(L10n.t("file.document.transcript")).font(.headline)
                 TextEditor(text: $controller.transcriptText)

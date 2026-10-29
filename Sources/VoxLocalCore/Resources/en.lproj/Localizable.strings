@@ -62,7 +62,6 @@
 "file.subtitle" = "Transcribe audio or video locally and save a polished document.";
 "file.section.file" = "1. File";
 "file.section.model" = "2. Whisper model";
-"file.section.document" = "3. Document";
 "file.choose" = "Choose audio or video";
 "file.dropHint" = "or drop a file here";
 "file.picker.title" = "Choose audio or video";
@@ -70,11 +69,6 @@
 "file.model" = "Model";
 "file.noModels" = "Download a Whisper model in Settings first.";
 "file.openSettings" = "Open Settings";
-"file.document.name" = "Document title";
-"file.participants.hint" = "Names appear in the document header. You can edit the transcript manually.";
-"file.participant.placeholder" = "Participant %d";
-"file.participant.add" = "Add participant";
-"file.participant.remove" = "Remove participant";
 "file.transcribe" = "Transcribe";
 "file.status.preparing" = "Preparing audio track…";
 "file.status.transcribing" = "Transcribing speech…";
@@ -89,7 +83,6 @@
 "file.document.source" = "Source file";
 "file.document.model" = "Model";
 "file.document.date" = "Date";
-"file.document.participants" = "Participants";
 "file.document.transcript" = "Transcript";
 "file.error.noAudio" = "No audio track was found in this file.";
 "file.error.read" = "Could not read audio: %@";

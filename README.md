@@ -10,7 +10,7 @@
   - *press-and-hold*: record while held, transcribe on release;
   - *toggle*: press to start, press again to stop.
 - **On-device transcription** with [whisper.cpp](https://github.com/ggml-org/whisper.cpp) (pinned to `v1.9.1`), Metal-accelerated on Apple Silicon. Russian, English and auto-detection.
-- **Audio and video file transcription** with model selection, participant names, an editable document preview and RTF export.
+- **Audio and video file transcription** with model selection, an editable document preview and RTF export.
 - **Secure automatic updates** through Sparkle, with signed update archives and a manual *Check for Updates…* command.
 - **Optional text refinement** (punctuation, capitalization, filler-word cleanup) through a **local Ollama** server on `localhost`. If Ollama is missing, unreachable, times out or returns nonsense, the raw transcript is used — dictation never breaks.
 - **System-wide insertion**: Accessibility API first, simulated ⌘V with clipboard restore second, plain "copied to clipboard" as the last resort.

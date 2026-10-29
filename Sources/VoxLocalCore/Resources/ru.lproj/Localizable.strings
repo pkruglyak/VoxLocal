@@ -62,7 +62,6 @@
 "file.subtitle" = "Локально распознайте аудио или видео и сохраните готовый документ.";
 "file.section.file" = "1. Файл";
 "file.section.model" = "2. Модель Whisper";
-"file.section.document" = "3. Документ";
 "file.choose" = "Выбрать аудио или видео";
 "file.dropHint" = "или перетащите файл сюда";
 "file.picker.title" = "Выберите аудио или видео";
@@ -70,11 +69,6 @@
 "file.model" = "Модель";
 "file.noModels" = "Сначала скачайте модель Whisper в настройках.";
 "file.openSettings" = "Открыть настройки";
-"file.document.name" = "Название документа";
-"file.participants.hint" = "Имена появятся в шапке документа. Расшифровку можно отредактировать вручную.";
-"file.participant.placeholder" = "Собеседник %d";
-"file.participant.add" = "Добавить собеседника";
-"file.participant.remove" = "Удалить собеседника";
 "file.transcribe" = "Транскрибировать";
 "file.status.preparing" = "Подготовка аудиодорожки…";
 "file.status.transcribing" = "Распознавание речи…";
@@ -89,7 +83,6 @@
 "file.document.source" = "Исходный файл";
 "file.document.model" = "Модель";
 "file.document.date" = "Дата";
-"file.document.participants" = "Собеседники";
 "file.document.transcript" = "Расшифровка";
 "file.error.noAudio" = "В файле не найдена звуковая дорожка.";
 "file.error.read" = "Не удалось прочитать звук: %@";
