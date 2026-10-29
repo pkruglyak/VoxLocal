@@ -6,6 +6,25 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
     <channel>
         <title>VoxLocal</title>
         <item>
+            <title>1.4.0</title>
+            <pubDate>Thu, 29 Oct 2026 17:47:52 +0300</pubDate>
+            <link>https://github.com/pkruglyak/VoxLocal</link>
+            <sparkle:version>9</sparkle:version>
+            <sparkle:shortVersionString>1.4.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description sparkle:format="markdown"><![CDATA[# VoxLocal 1.4.0
+
+- Для транскрибации аудио- и видеофайлов добавлена новая рекомендуемая модель NVIDIA Parakeet TDT 0.6B v3.
+- Parakeet точнее распознаёт русскую речь, автоматически расставляет пунктуацию и загружается только после явного подтверждения пользователя.
+- Во время загрузки Parakeet показываются полоса прогресса и точный процент; модель занимает около 714 МБ.
+- Whisper Base остаётся моделью по умолчанию для быстрой диктовки с микрофона, а установленные Whisper-модели доступны как запасные варианты для файлов.
+- Движок whisper.cpp обновлён с 1.9.1 до 1.9.5.
+- Добавлен локальный Metal-движок NVIDIA NeMo-Speech.cpp 0.2.0 для Apple Silicon; звук и расшифровка по-прежнему не покидают Mac.
+]]></description>
+            <enclosure url="https://github.com/pkruglyak/VoxLocal/releases/download/v1.4.0/VoxLocal-1.4.0.zip" length="8989783" type="application/octet-stream" sparkle:edSignature="QabZkpbGa5n41NbjDKLmhxfINyJUVRpMiy9GjoQ8xvX9RZkc49O6QB6fjxM0cBVdmsg2pW4L+fWY/5sUlMHfAw=="/>
+        </item>
+        <item>
             <title>1.3.2</title>
             <pubDate>Thu, 29 Oct 2026 17:25:39 +0300</pubDate>
             <link>https://github.com/pkruglyak/VoxLocal</link>
@@ -35,27 +54,9 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
 ]]></description>
             <enclosure url="https://github.com/pkruglyak/VoxLocal/releases/download/v1.3.1/VoxLocal-1.3.1.zip" length="3058810" type="application/octet-stream" sparkle:edSignature="Ya5r+WuNvIhkikY/qnTdbQp4P5/XAUIbys3Ej4j05X/FEzMY2sGkKd0qvklEFE55MHeGusXVK0O/pppj3dUACw=="/>
         </item>
-        <item>
-            <title>1.3.0</title>
-            <pubDate>Thu, 29 Oct 2026 17:16:13 +0300</pubDate>
-            <link>https://github.com/pkruglyak/VoxLocal</link>
-            <sparkle:version>6</sparkle:version>
-            <sparkle:shortVersionString>1.3.0</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <description sparkle:format="markdown"><![CDATA[# VoxLocal 1.3.0
-
-- В настройках оставлены три понятных варианта Whisper: Base, Small и Large v3 Turbo.
-- Base используется по умолчанию для быстрой диктовки с микрофона.
-- Для аудио- и видеофайлов по умолчанию выбирается Large v3 Turbo, если модель установлена.
-- Если Large v3 Turbo ещё не установлена, её можно скачать прямо из окна транскрибации после подтверждения размера.
-- Старые скачанные модели не удаляются с компьютера.
-]]></description>
-            <enclosure url="https://github.com/pkruglyak/VoxLocal/releases/download/v1.3.0/VoxLocal-1.3.0.zip" length="3056240" type="application/octet-stream" sparkle:edSignature="qkXbTft6MOhdtIURuujxk601n8qUhGzsn8MiUfTqmThQxWR57RZVt9nL7HUgNai0/Vg+gv6JJ6pzg+mRQm1TDg=="/>
-        </item>
     </channel>
 </rss>
 <!-- sparkle-signatures:
-edSignature: h8yWFRCTPxn2NXk8AP2W63WZlibTYGPD0IXpYL8J++n5+7ltrEeRUtpOcJd8ETlwQvnHlvKE4zzbYqclFC67Dg==
-length: 4204
+edSignature: TAYAc7OaQgmLy6kjVYpd50dgELzyJpPHZv0/2UGBdtZSDTMFflKjJarpcYi3sqno1rMQIZUw4fqWulmngCieCw==
+length: 4645
 -->
