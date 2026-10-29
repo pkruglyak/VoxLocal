@@ -55,7 +55,7 @@ log "Signing the update and generating appcast.xml…"
     "$APPCAST_WORK"
 cp "$APPCAST_WORK/appcast.xml" "$REPO_ROOT/appcast.xml"
 
-log "Publishing GitHub Release $TAG…"
+log "Publishing GitHub Release ${TAG}…"
 gh release create "$TAG" "$ARCHIVE" \
     --repo "$REPOSITORY" \
     --target main \
