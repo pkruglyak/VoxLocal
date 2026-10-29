@@ -61,7 +61,7 @@ public final class WhisperTranscriber: @unchecked Sendable {
         switch ModelManager.validateModelFile(at: modelURL) {
         case .valid: break
         case .missing: throw VoxLocalError.modelMissing(modelURL.path)
-        case .tooSmall, .badMagic: throw VoxLocalError.modelInvalid(modelURL.path)
+        case .tooSmall, .badMagic, .wrongSize: throw VoxLocalError.modelInvalid(modelURL.path)
         }
 
         let outputBase = FileManager.default.temporaryDirectory

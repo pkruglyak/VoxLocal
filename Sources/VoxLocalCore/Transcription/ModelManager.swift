@@ -13,9 +13,12 @@ public final class ModelManager: NSObject, ObservableObject {
 
     /// ggml container magic ("ggml" read as a little-endian UInt32).
     static let ggmlMagic: UInt32 = 0x6767_6D6C
+    /// GGUF container magic (the four bytes `GGUF`).
+    static let ggufMagic: UInt32 = 0x4655_4747
     static let minimumModelBytes: Int64 = 1_000_000
 
     @Published public private(set) var installedModels: [InstalledModel] = []
+    @Published public private(set) var installedParakeetModel: InstalledModel?
     @Published public private(set) var downloadProgress: Double?
     @Published public private(set) var downloadingModel: String?
 
@@ -47,7 +50,21 @@ public final class ModelManager: NSObject, ObservableObject {
                 return InstalledModel(name: Self.modelName(fromFileName: url.lastPathComponent), url: url, sizeBytes: size)
             }
             .sorted { $0.sizeBytes < $1.sizeBytes }
-        DispatchQueue.main.async { self.installedModels = models }
+        let parakeetURL = expectedParakeetModelURL
+        let parakeet: InstalledModel?
+        if case .valid = Self.validateParakeetModelFile(at: parakeetURL) {
+            let size = (try? parakeetURL.resourceValues(forKeys: [.fileSizeKey]).fileSize).map(Int64.init) ?? 0
+            parakeet = InstalledModel(
+                name: ParakeetModelCatalog.recommended.name,
+                url: parakeetURL,
+                sizeBytes: size)
+        } else {
+            parakeet = nil
+        }
+        DispatchQueue.main.async {
+            self.installedModels = models
+            self.installedParakeetModel = parakeet
+        }
     }
 
     public static func modelName(fromFileName fileName: String) -> String {
@@ -62,6 +79,7 @@ public final class ModelManager: NSObject, ObservableObject {
         case missing
         case tooSmall
         case badMagic
+        case wrongSize
     }
 
     /// Checks existence, a minimum plausible size and the ggml magic number.
@@ -77,9 +95,30 @@ public final class ModelManager: NSObject, ObservableObject {
         return magic == ggmlMagic ? .valid : .badMagic
     }
 
+    /// Validates the pinned Parakeet GGUF using its container magic and exact
+    /// published byte count. This catches interrupted and HTML-error downloads
+    /// without loading the 714 MB file into memory.
+    public static func validateParakeetModelFile(at url: URL) -> ValidationResult {
+        let info = ParakeetModelCatalog.recommended
+        let fm = FileManager.default
+        guard fm.fileExists(atPath: url.path) else { return .missing }
+        guard let size = (try? fm.attributesOfItem(atPath: url.path)[.size]) as? Int64,
+              size >= minimumModelBytes else { return .tooSmall }
+        guard size == info.expectedBytes else { return .wrongSize }
+        guard let handle = try? FileHandle(forReadingFrom: url),
+              let head = try? handle.read(upToCount: 4), head.count == 4 else { return .badMagic }
+        try? handle.close()
+        let magic = head.withUnsafeBytes { $0.loadUnaligned(as: UInt32.self) }.littleEndian
+        return magic == ggufMagic ? .valid : .badMagic
+    }
+
     /// URL where a model with the given name is expected.
     public func expectedURL(forModelName name: String) -> URL {
         modelsDirectory.appendingPathComponent("ggml-\(name).bin")
+    }
+
+    public var expectedParakeetModelURL: URL {
+        modelsDirectory.appendingPathComponent(ParakeetModelCatalog.recommended.fileName)
     }
 
     /// Resolves the model selected in settings to a validated file URL.
@@ -90,7 +129,19 @@ public final class ModelManager: NSObject, ObservableObject {
             return url
         case .missing:
             throw VoxLocalError.modelMissing(url.path)
-        case .tooSmall, .badMagic:
+        case .tooSmall, .badMagic, .wrongSize:
+            throw VoxLocalError.modelInvalid(url.path)
+        }
+    }
+
+    public func resolveParakeetModel() throws -> URL {
+        let url = expectedParakeetModelURL
+        switch Self.validateParakeetModelFile(at: url) {
+        case .valid:
+            return url
+        case .missing:
+            throw VoxLocalError.modelMissing(url.path)
+        case .tooSmall, .badMagic, .wrongSize:
             throw VoxLocalError.modelInvalid(url.path)
         }
     }
@@ -103,32 +154,10 @@ public final class ModelManager: NSObject, ObservableObject {
     /// explicit user confirmation before calling this.
     @discardableResult
     public func download(_ info: WhisperModelInfo) async throws -> URL {
-        guard !isDownloading else {
-            throw NSError(domain: "VoxLocal", code: 1,
-                          userInfo: [NSLocalizedDescriptionKey: L10n.t("models.download.busy")])
-        }
-        await MainActor.run {
-            downloadingModel = info.name
-            downloadProgress = 0
-        }
-        defer {
-            Task { @MainActor in
-                self.downloadingModel = nil
-                self.downloadProgress = nil
-            }
-        }
-        Log.shared.info("model download started: \(info.name) (~\(info.approxMB) MB)")
-
-        let tempURL: URL = try await withTaskCancellationHandler {
-            try await withCheckedThrowingContinuation { continuation in
-                downloadContinuation = continuation
-                let task = session.downloadTask(with: info.downloadURL)
-                downloadTask = task
-                task.resume()
-            }
-        } onCancel: {
-            downloadTask?.cancel()
-        }
+        let tempURL = try await downloadTemporaryFile(
+            name: info.name,
+            approxMB: info.approxMB,
+            source: info.downloadURL)
 
         let destination = expectedURL(forModelName: info.name)
         let fm = FileManager.default
@@ -142,6 +171,60 @@ public final class ModelManager: NSObject, ObservableObject {
         Log.shared.info("model download finished: \(info.name)")
         refreshInstalledModels()
         return destination
+    }
+
+    /// Downloads the pinned NVIDIA Parakeet model. The UI must obtain the same
+    /// explicit size confirmation used for Whisper models before calling it.
+    @discardableResult
+    public func download(_ info: ParakeetModelInfo) async throws -> URL {
+        let tempURL = try await downloadTemporaryFile(
+            name: info.name,
+            approxMB: info.approxMB,
+            source: info.downloadURL)
+
+        let destination = expectedParakeetModelURL
+        let fm = FileManager.default
+        try? fm.removeItem(at: destination)
+        try fm.moveItem(at: tempURL, to: destination)
+
+        guard case .valid = Self.validateParakeetModelFile(at: destination) else {
+            try? fm.removeItem(at: destination)
+            throw VoxLocalError.modelInvalid(destination.path)
+        }
+        Log.shared.info("model download finished: \(info.name)")
+        refreshInstalledModels()
+        return destination
+    }
+
+    private func downloadTemporaryFile(name: String, approxMB: Int, source: URL) async throws -> URL {
+        guard !isDownloading else {
+            throw NSError(domain: "VoxLocal", code: 1,
+                          userInfo: [NSLocalizedDescriptionKey: L10n.t("models.download.busy")])
+        }
+        await MainActor.run {
+            downloadingModel = name
+            downloadProgress = 0
+        }
+        defer {
+            Task { @MainActor in
+                self.downloadingModel = nil
+                self.downloadProgress = nil
+            }
+        }
+        Log.shared.info("model download started: \(name) (~\(approxMB) MB)")
+
+        let tempURL: URL = try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                downloadContinuation = continuation
+                let task = session.downloadTask(with: source)
+                downloadTask = task
+                task.resume()
+            }
+        } onCancel: {
+            downloadTask?.cancel()
+        }
+
+        return tempURL
     }
 
     public func cancelDownload() {

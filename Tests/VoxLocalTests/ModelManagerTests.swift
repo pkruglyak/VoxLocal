@@ -22,6 +22,15 @@ final class ModelManagerTests: XCTestCase {
         return url
     }
 
+    private func writeValidParakeetModel() throws -> URL {
+        let url = tempDir.appendingPathComponent(ParakeetModelCatalog.recommended.fileName)
+        try Data([0x47, 0x47, 0x55, 0x46]).write(to: url) // GGUF
+        let handle = try FileHandle(forWritingTo: url)
+        try handle.truncate(atOffset: UInt64(ParakeetModelCatalog.recommended.expectedBytes))
+        try handle.close()
+        return url
+    }
+
     func testValidModelPasses() throws {
         let url = try writeValidModel(named: "base")
         XCTAssertEqual(ModelManager.validateModelFile(at: url), .valid)
@@ -42,6 +51,19 @@ final class ModelManagerTests: XCTestCase {
         let url = tempDir.appendingPathComponent("ggml-corrupt.bin")
         try Data(repeating: 0x42, count: 2_000_000).write(to: url)
         XCTAssertEqual(ModelManager.validateModelFile(at: url), .badMagic)
+    }
+
+    func testValidParakeetModelPasses() throws {
+        let url = try writeValidParakeetModel()
+        XCTAssertEqual(ModelManager.validateParakeetModelFile(at: url), .valid)
+    }
+
+    func testTruncatedParakeetModelFails() throws {
+        let url = tempDir.appendingPathComponent(ParakeetModelCatalog.recommended.fileName)
+        var data = Data([0x47, 0x47, 0x55, 0x46])
+        data.append(Data(count: 1_100_000))
+        try data.write(to: url)
+        XCTAssertEqual(ModelManager.validateParakeetModelFile(at: url), .wrongSize)
     }
 
     func testResolveModelErrors() throws {
@@ -65,6 +87,12 @@ final class ModelManagerTests: XCTestCase {
         let manager = ModelManager(modelsDirectory: tempDir)
         let url = try manager.resolveModel(named: "base")
         XCTAssertEqual(url.lastPathComponent, "ggml-base.bin")
+    }
+
+    func testResolveValidParakeetModel() throws {
+        let expected = try writeValidParakeetModel()
+        let manager = ModelManager(modelsDirectory: tempDir)
+        XCTAssertEqual(try manager.resolveParakeetModel(), expected)
     }
 
     func testInstalledModelScanSkipsInvalidFiles() throws {
@@ -94,6 +122,11 @@ final class ModelManagerTests: XCTestCase {
             XCTAssertTrue(model.downloadURL.path.contains("ggerganov/whisper.cpp"))
             XCTAssertGreaterThan(model.approxMB, 0)
         }
+        let parakeet = ParakeetModelCatalog.recommended
+        XCTAssertEqual(parakeet.downloadURL.scheme, "https")
+        XCTAssertEqual(parakeet.downloadURL.host, "huggingface.co")
+        XCTAssertTrue(parakeet.downloadURL.path.contains("nvidia/parakeet-tdt-0.6b-v3"))
+        XCTAssertEqual(parakeet.expectedBytes, 713_975_456)
     }
 
     func testDefaultModelIsInCatalog() {

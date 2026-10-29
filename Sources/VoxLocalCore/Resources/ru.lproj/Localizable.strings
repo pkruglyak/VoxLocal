@@ -61,7 +61,7 @@
 "file.title" = "Транскрибация файла";
 "file.subtitle" = "Локально распознайте аудио или видео и сохраните готовый документ.";
 "file.section.file" = "1. Файл";
-"file.section.model" = "2. Модель Whisper";
+"file.section.model" = "2. Модель распознавания";
 "file.choose" = "Выбрать аудио или видео";
 "file.dropHint" = "или перетащите файл сюда";
 "file.replace" = "Заменить…";
@@ -69,12 +69,13 @@
 "file.picker.title" = "Выберите аудио или видео";
 "file.picker.choose" = "Выбрать";
 "file.model" = "Модель";
-"file.noModels" = "Сначала скачайте модель Whisper в настройках.";
+"file.noModels" = "Скачайте рекомендуемую модель ниже или модель Whisper в настройках.";
 "file.openSettings" = "Открыть настройки";
 "file.model.recommended.title" = "Лучшее качество для файлов";
-"file.model.recommended.text" = "Large v3 Turbo точнее распознаёт длинные записи. Загрузка — около %@, только один раз.";
-"file.model.recommended.download" = "Скачать Large v3 Turbo…";
-"file.model.recommended.downloading" = "Загрузка Large v3 Turbo…";
+"file.model.recommended.text" = "NVIDIA Parakeet точнее распознаёт длинные русские записи, сам расставляет пунктуацию и занимает около %@. Загружается один раз.";
+"file.model.recommended.download" = "Скачать NVIDIA Parakeet…";
+"file.model.recommended.downloading" = "Загрузка NVIDIA Parakeet…";
+"file.model.recommended.confirm.message" = "Модель «%@» будет загружена с huggingface.co из официального репозитория NVIDIA. Размер около %@. Продолжить?";
 "file.transcribe" = "Транскрибировать";
 "file.status.preparing" = "Подготовка аудиодорожки…";
 "file.status.transcribing" = "Распознавание речи…";
@@ -103,6 +104,8 @@
 "model.small.description" = "Баланс скорости и точности";
 "model.large-v3-turbo.title" = "Максимум · Large v3 Turbo";
 "model.large-v3-turbo.description" = "Лучшее качество для аудио и видеофайлов";
+"model.parakeet.title" = "Рекомендуем · NVIDIA Parakeet";
+"model.parakeet.description" = "Высокая точность и пунктуация для русских аудио- и видеофайлов";
 
 /* Пресеты улучшения */
 "refine.preset.rawTranscript" = "Исходная расшифровка";

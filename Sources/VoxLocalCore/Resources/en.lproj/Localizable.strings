@@ -61,7 +61,7 @@
 "file.title" = "File Transcription";
 "file.subtitle" = "Transcribe audio or video locally and save a polished document.";
 "file.section.file" = "1. File";
-"file.section.model" = "2. Whisper model";
+"file.section.model" = "2. Recognition model";
 "file.choose" = "Choose audio or video";
 "file.dropHint" = "or drop a file here";
 "file.replace" = "Replace…";
@@ -69,12 +69,13 @@
 "file.picker.title" = "Choose audio or video";
 "file.picker.choose" = "Choose";
 "file.model" = "Model";
-"file.noModels" = "Download a Whisper model in Settings first.";
+"file.noModels" = "Download the recommended model below or a Whisper model in Settings.";
 "file.openSettings" = "Open Settings";
 "file.model.recommended.title" = "Best quality for files";
-"file.model.recommended.text" = "Large v3 Turbo is more accurate on long recordings. About %@, downloaded once.";
-"file.model.recommended.download" = "Download Large v3 Turbo…";
-"file.model.recommended.downloading" = "Downloading Large v3 Turbo…";
+"file.model.recommended.text" = "NVIDIA Parakeet is more accurate on long multilingual recordings, adds punctuation, and uses about %@. Downloaded once.";
+"file.model.recommended.download" = "Download NVIDIA Parakeet…";
+"file.model.recommended.downloading" = "Downloading NVIDIA Parakeet…";
+"file.model.recommended.confirm.message" = "The “%@” model will be downloaded from NVIDIA's official repository on huggingface.co. Size is about %@. Continue?";
 "file.transcribe" = "Transcribe";
 "file.status.preparing" = "Preparing audio track…";
 "file.status.transcribing" = "Transcribing speech…";
@@ -103,6 +104,8 @@
 "model.small.description" = "A balance of speed and accuracy";
 "model.large-v3-turbo.title" = "Best · Large v3 Turbo";
 "model.large-v3-turbo.description" = "Highest quality for audio and video files";
+"model.parakeet.title" = "Recommended · NVIDIA Parakeet";
+"model.parakeet.description" = "High accuracy and punctuation for multilingual audio and video files";
 
 /* Refinement presets */
 "refine.preset.rawTranscript" = "Raw transcript";

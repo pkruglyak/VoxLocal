@@ -9,8 +9,8 @@
 - **Menu-bar app** (no Dock icon) with a global shortcut — default **⌥ Option + Space**:
   - *press-and-hold*: record while held, transcribe on release;
   - *toggle*: press to start, press again to stop.
-- **On-device transcription** with [whisper.cpp](https://github.com/ggml-org/whisper.cpp) (pinned to `v1.9.1`), Metal-accelerated on Apple Silicon. Russian, English and auto-detection.
-- **Audio and video file transcription** with `large-v3-turbo` recommended by default, an editable document preview and RTF export.
+- **On-device transcription** with [whisper.cpp](https://github.com/ggml-org/whisper.cpp) (pinned to `v1.9.5`), Metal-accelerated on Apple Silicon. Russian, English and auto-detection.
+- **Audio and video file transcription** with NVIDIA Parakeet TDT 0.6B v3 recommended by default, Whisper as a fallback, an editable document preview and RTF export.
 - **Secure automatic updates** through Sparkle, with signed update archives and a manual *Check for Updates…* command.
 - **Optional text refinement** (punctuation, capitalization, filler-word cleanup) through a **local Ollama** server on `localhost`. If Ollama is missing, unreachable, times out or returns nonsense, the raw transcript is used — dictation never breaks.
 - **System-wide insertion**: Accessibility API first, simulated ⌘V with clipboard restore second, plain "copied to clipboard" as the last resort.
@@ -39,7 +39,8 @@
 git clone https://github.com/pkruglyak/VoxLocal.git && cd VoxLocal
 
 ./scripts/bootstrap.sh    # checks tools, fetches project-local cmake if needed,
-                          # clones whisper.cpp v1.9.1, builds whisper-cli (Metal)
+                          # builds whisper.cpp v1.9.5 and installs the pinned
+                          # NeMo-Speech.cpp 0.2.0 Metal runtime
 ./scripts/test.sh         # runs the automated test suite
 ./scripts/download_model.sh base   # ~148 MB, asks for confirmation (or use the in-app downloader)
 ./scripts/build_app.sh    # builds dist/VoxLocal.app (ad-hoc signed)

@@ -8,9 +8,10 @@ require_clt
 cd "$REPO_ROOT"
 
 [[ -x "$WHISPER_CLI" ]] || die "whisper-cli not built. Run ./scripts/bootstrap.sh first."
+[[ -x "$NEMO_SPEECH_CLI" ]] || die "nemo-speech not installed. Run ./scripts/bootstrap.sh first."
 
-VERSION="${VOXLOCAL_VERSION:-1.3.2}"
-BUILD_NUMBER="${VOXLOCAL_BUILD_NUMBER:-8}"
+VERSION="${VOXLOCAL_VERSION:-1.4.0}"
+BUILD_NUMBER="${VOXLOCAL_BUILD_NUMBER:-9}"
 ICON_FILE="$REPO_ROOT/assets/VoxLocal.icns"
 
 log "Building Swift package (release)…"
@@ -26,13 +27,17 @@ SPARKLE_FRAMEWORK="$REPO_ROOT/.build/release/Sparkle.framework"
 
 log "Assembling ${APP_BUNDLE}…"
 rm -rf "$APP_BUNDLE"
-mkdir -p "$APP_BUNDLE/Contents/MacOS" "$APP_BUNDLE/Contents/Resources" "$APP_BUNDLE/Contents/Frameworks"
+mkdir -p "$APP_BUNDLE/Contents/MacOS" "$APP_BUNDLE/Contents/Resources" "$APP_BUNDLE/Contents/Frameworks" "$APP_BUNDLE/Contents/lib"
 
 cp "$BIN" "$APP_BUNDLE/Contents/MacOS/$APP_NAME"
 cp "$WHISPER_CLI" "$APP_BUNDLE/Contents/MacOS/whisper-cli"
+cp "$NEMO_SPEECH_CLI" "$APP_BUNDLE/Contents/MacOS/nemo-speech"
+ditto "$NEMO_SPEECH_DIR/lib" "$APP_BUNDLE/Contents/lib"
 cp -R "$RESOURCE_BUNDLE" "$APP_BUNDLE/Contents/Resources/"
 ditto "$SPARKLE_FRAMEWORK" "$APP_BUNDLE/Contents/Frameworks/Sparkle.framework"
 cp "$ICON_FILE" "$APP_BUNDLE/Contents/Resources/VoxLocal.icns"
+mkdir -p "$APP_BUNDLE/Contents/Resources/ThirdParty/NeMo-Speech.cpp"
+ditto "$NEMO_SPEECH_DIR/share/licenses/nemo-speech" "$APP_BUNDLE/Contents/Resources/ThirdParty/NeMo-Speech.cpp"
 
 # SwiftPM links Sparkle through @rpath, while a regular app bundle keeps
 # third-party frameworks in Contents/Frameworks.

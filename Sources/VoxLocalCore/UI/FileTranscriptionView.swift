@@ -5,6 +5,27 @@ import UniformTypeIdentifiers
 
 @MainActor
 public final class FileTranscriptionController: ObservableObject {
+    public struct AvailableModel: Identifiable, Hashable, Sendable {
+        public enum Engine: Hashable, Sendable {
+            case whisper
+            case parakeet
+        }
+
+        public let name: String
+        public let engine: Engine
+        public let sizeBytes: Int64
+        public var id: String { name }
+
+        public var displayName: String {
+            switch engine {
+            case .whisper:
+                return WhisperModelCatalog.info(for: name)?.displayName ?? name
+            case .parakeet:
+                return ParakeetModelCatalog.recommended.displayName
+            }
+        }
+    }
+
     public enum State: Equatable {
         case ready
         case preparing
@@ -15,7 +36,7 @@ public final class FileTranscriptionController: ObservableObject {
 
     @Published public private(set) var state: State = .ready
     @Published public private(set) var sourceURL: URL?
-    @Published public private(set) var installedModels: [ModelManager.InstalledModel] = []
+    @Published public private(set) var installedModels: [AvailableModel] = []
     @Published public var selectedModel = ""
     @Published public var transcriptText = ""
     @Published public private(set) var detectedLanguage: String?
@@ -27,25 +48,35 @@ public final class FileTranscriptionController: ObservableObject {
     private let settings: SettingsStore
     private let modelManager: ModelManager
     private let transcriber: WhisperTranscriber
+    private let parakeetTranscriber: ParakeetTranscriber
     private let converter: MediaAudioConverter
     private var task: Task<Void, Never>?
     private var modelDownloadTask: Task<Void, Never>?
     private var modelSubscription: AnyCancellable?
+    private var parakeetModelSubscription: AnyCancellable?
     private var downloadProgressSubscription: AnyCancellable?
 
     public init(
         settings: SettingsStore,
         modelManager: ModelManager,
         transcriber: WhisperTranscriber = WhisperTranscriber(),
+        parakeetTranscriber: ParakeetTranscriber = ParakeetTranscriber(),
         converter: MediaAudioConverter = MediaAudioConverter()
     ) {
         self.settings = settings
         self.modelManager = modelManager
         self.transcriber = transcriber
+        self.parakeetTranscriber = parakeetTranscriber
         self.converter = converter
         modelSubscription = modelManager.$installedModels
             .receive(on: DispatchQueue.main)
             .sink { [weak self] models in self?.applyModels(models) }
+        parakeetModelSubscription = modelManager.$installedParakeetModel
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                self.applyModels(self.modelManager.installedModels)
+            }
         downloadProgressSubscription = modelManager.$downloadProgress
             .receive(on: DispatchQueue.main)
             .sink { [weak self] progress in self?.modelDownloadProgress = progress ?? 0 }
@@ -82,9 +113,19 @@ public final class FileTranscriptionController: ObservableObject {
         let recommended = WhisperModelCatalog.models.compactMap { info in
             models.first { $0.name == info.name }
         }
-        installedModels = recommended.isEmpty ? models : recommended
+        let visibleWhisper = recommended.isEmpty ? models : recommended
+        var available = visibleWhisper.map {
+            AvailableModel(name: $0.name, engine: .whisper, sizeBytes: $0.sizeBytes)
+        }
+        if let parakeet = modelManager.installedParakeetModel {
+            available.insert(
+                AvailableModel(name: parakeet.name, engine: .parakeet, sizeBytes: parakeet.sizeBytes),
+                at: 0)
+        }
+        installedModels = available
         if selectedModel.isEmpty || !installedModels.contains(where: { $0.name == selectedModel }) {
             let preferredNames = [
+                ParakeetModelCatalog.recommended.name,
                 WhisperModelCatalog.fileDefaultModelName,
                 "small",
                 settings.whisperModel,
@@ -96,12 +137,12 @@ public final class FileTranscriptionController: ObservableObject {
         }
     }
 
-    public var recommendedFileModel: WhisperModelInfo {
-        WhisperModelCatalog.info(for: WhisperModelCatalog.fileDefaultModelName)!
+    public var recommendedFileModel: ParakeetModelInfo {
+        ParakeetModelCatalog.recommended
     }
 
     public var hasRecommendedFileModel: Bool {
-        installedModels.contains { $0.name == WhisperModelCatalog.fileDefaultModelName }
+        installedModels.contains { $0.name == ParakeetModelCatalog.recommended.name }
     }
 
     public func downloadRecommendedFileModel() {
@@ -164,6 +205,7 @@ public final class FileTranscriptionController: ObservableObject {
         completedAt = nil
 
         let modelName = selectedModel
+        let selectedEngine = installedModels.first { $0.name == modelName }?.engine
         let language = settings.spokenLanguage.whisperCode
         let threads = settings.whisperThreads
         let removeArtifacts = settings.removeArtifacts
@@ -172,9 +214,18 @@ public final class FileTranscriptionController: ObservableObject {
             guard let self else { return }
             var temporaryWAV: URL?
             do {
-                let modelURL = try self.modelManager.resolveModel(named: modelName)
+                let modelURL: URL
+                switch selectedEngine {
+                case .parakeet:
+                    modelURL = try self.modelManager.resolveParakeetModel()
+                case .whisper, .none:
+                    modelURL = try self.modelManager.resolveModel(named: modelName)
+                }
                 let audioURL: URL
-                if ["wav", "mp3", "flac", "ogg"].contains(sourceURL.pathExtension.lowercased()) {
+                if selectedEngine != .parakeet,
+                   ["wav", "mp3", "flac", "ogg"].contains(sourceURL.pathExtension.lowercased()) {
+                    audioURL = sourceURL
+                } else if sourceURL.pathExtension.lowercased() == "wav" {
                     audioURL = sourceURL
                 } else {
                     let converted = try await self.converter.convertToWAV(sourceURL: sourceURL)
@@ -183,13 +234,23 @@ public final class FileTranscriptionController: ObservableObject {
                 }
                 try Task.checkCancellation()
                 self.state = .transcribing
-                let result = try await self.transcriber.transcribe(
-                    audioURL: audioURL,
-                    modelURL: modelURL,
-                    language: language,
-                    threads: threads,
-                    removeArtifacts: removeArtifacts,
-                    timeout: 21_600)
+                let result: WhisperTranscriber.Transcript
+                if selectedEngine == .parakeet {
+                    result = try await self.parakeetTranscriber.transcribe(
+                        audioURL: audioURL,
+                        modelURL: modelURL,
+                        language: language,
+                        removeArtifacts: removeArtifacts,
+                        timeout: 21_600)
+                } else {
+                    result = try await self.transcriber.transcribe(
+                        audioURL: audioURL,
+                        modelURL: modelURL,
+                        language: language,
+                        threads: threads,
+                        removeArtifacts: removeArtifacts,
+                        timeout: 21_600)
+                }
                 try Task.checkCancellation()
                 self.transcriptText = result.text
                 self.detectedLanguage = result.detectedLanguage
@@ -238,10 +299,14 @@ public final class FileTranscriptionController: ObservableObject {
         }
     }
 
+    public var selectedModelDisplayName: String {
+        installedModels.first { $0.name == selectedModel }?.displayName ?? selectedModel
+    }
+
     private func documentPlainText() -> String {
         var sections = [documentTitle]
         if let sourceURL { sections.append("\(L10n.t("file.document.source")): \(sourceURL.lastPathComponent)") }
-        sections.append("\(L10n.t("file.document.model")): \(selectedModel)")
+        sections.append("\(L10n.t("file.document.model")): \(selectedModelDisplayName)")
         if let completedAt {
             sections.append("\(L10n.t("file.document.date")): \(Self.dateFormatter.string(from: completedAt))")
         }
@@ -270,7 +335,7 @@ public final class FileTranscriptionController: ObservableObject {
             result.append(NSAttributedString(string: sourceURL.lastPathComponent + "\n", attributes: [.font: bodyFont]))
         }
         result.append(NSAttributedString(string: "\(L10n.t("file.document.model")): ", attributes: [.font: headingFont]))
-        result.append(NSAttributedString(string: selectedModel + "\n", attributes: [.font: bodyFont]))
+        result.append(NSAttributedString(string: selectedModelDisplayName + "\n", attributes: [.font: bodyFont]))
         result.append(NSAttributedString(string: "\n\(L10n.t("file.document.transcript"))\n", attributes: [.font: headingFont]))
         result.append(NSAttributedString(string: transcriptText, attributes: [.font: bodyFont, .paragraphStyle: paragraph]))
         return result
@@ -428,7 +493,7 @@ private struct ModelPickerSection: View {
             } else {
                 Picker(L10n.t("file.model"), selection: $controller.selectedModel) {
                     ForEach(controller.installedModels) { model in
-                        Text(WhisperModelCatalog.info(for: model.name)?.displayName ?? model.name)
+                        Text(model.displayName)
                             .tag(model.name)
                     }
                 }
@@ -480,7 +545,7 @@ private struct ModelPickerSection: View {
             Button(L10n.t("common.cancel"), role: .cancel) {}
         } message: {
             Text(L10n.t(
-                "settings.model.confirm.message",
+                "file.model.recommended.confirm.message",
                 controller.recommendedFileModel.displayName,
                 controller.recommendedFileModel.sizeLabel))
         }
@@ -599,7 +664,7 @@ private struct PreviewMetadata: View {
             if let source = controller.sourceURL {
                 Label(source.lastPathComponent, systemImage: "paperclip")
             }
-            Label(WhisperModelCatalog.info(for: controller.selectedModel)?.displayName ?? controller.selectedModel,
+            Label(controller.selectedModelDisplayName,
                   systemImage: "cpu")
             if let language = controller.detectedLanguage {
                 Label(language.uppercased(), systemImage: "globe")

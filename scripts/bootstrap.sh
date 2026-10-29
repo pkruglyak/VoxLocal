@@ -4,6 +4,7 @@
 #   2. Obtains cmake (project-local download if not installed system-wide).
 #   3. Clones whisper.cpp pinned to a stable tag.
 #   4. Builds whisper-cli with Metal acceleration.
+#   5. Downloads the pinned NeMo-Speech.cpp Metal runtime for Parakeet.
 # No sudo, no global package manager. Everything lands in vendor/.
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
@@ -46,6 +47,23 @@ log "whisper.cpp commit: $(git -C "$WHISPER_DIR" rev-parse HEAD)"
 
 # --- build whisper-cli -------------------------------------------------
 "$REPO_ROOT/scripts/build_whisper.sh"
+
+# --- NeMo-Speech.cpp ---------------------------------------------------
+if [[ -x "$NEMO_SPEECH_CLI" ]] && "$NEMO_SPEECH_CLI" --version 2>/dev/null | grep -q "$NEMO_SPEECH_VERSION"; then
+  log "NeMo-Speech.cpp already installed at $NEMO_SPEECH_VERSION"
+else
+  NEMO_DOWNLOAD="$VENDOR_DIR/tools/$NEMO_SPEECH_ARCHIVE"
+  NEMO_URL="https://github.com/NVIDIA/NeMo-Speech.cpp/releases/download/v$NEMO_SPEECH_VERSION/$NEMO_SPEECH_ARCHIVE"
+  log "Downloading NeMo-Speech.cpp $NEMO_SPEECH_VERSION for Apple Silicon Metal (~5 MB)"
+  curl -fL --retry 3 -o "$NEMO_DOWNLOAD" "$NEMO_URL"
+  printf '%s  %s\n' "$NEMO_SPEECH_SHA256" "$NEMO_DOWNLOAD" | shasum -a 256 -c -
+  rm -rf "$NEMO_SPEECH_DIR"
+  mkdir -p "$NEMO_SPEECH_DIR"
+  tar -xzf "$NEMO_DOWNLOAD" -C "$NEMO_SPEECH_DIR" --strip-components=1
+  rm -f "$NEMO_DOWNLOAD"
+  [[ -x "$NEMO_SPEECH_CLI" ]] || die "NeMo-Speech.cpp extraction failed"
+  log "NeMo-Speech.cpp ready: $NEMO_SPEECH_CLI"
+fi
 
 log "Bootstrap complete."
 log "Next steps: ./scripts/test.sh && ./scripts/build_app.sh && ./scripts/run.sh"

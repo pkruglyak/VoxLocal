@@ -235,3 +235,70 @@ final class WhisperTranscriberTests: XCTestCase {
         XCTAssertEqual(transcript.detectedLanguage, "en")
     }
 }
+
+final class ParakeetTranscriberTests: XCTestCase {
+    private var tempDir: URL!
+    private var modelURL: URL!
+    private var audioURL: URL!
+    private var fakeBinary: URL!
+
+    override func setUpWithError() throws {
+        tempDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("voxlocal-parakeet-tests-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+
+        modelURL = tempDir.appendingPathComponent(ParakeetModelCatalog.recommended.fileName)
+        try Data([0x47, 0x47, 0x55, 0x46]).write(to: modelURL)
+        let handle = try FileHandle(forWritingTo: modelURL)
+        try handle.truncate(atOffset: UInt64(ParakeetModelCatalog.recommended.expectedBytes))
+        try handle.close()
+
+        audioURL = tempDir.appendingPathComponent("audio.wav")
+        try Data(count: 128).write(to: audioURL)
+        fakeBinary = tempDir.appendingPathComponent("nemo-speech")
+        try Data("#!/bin/sh\nexit 0\n".utf8).write(to: fakeBinary)
+        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: fakeBinary.path)
+    }
+
+    override func tearDownWithError() throws {
+        try? FileManager.default.removeItem(at: tempDir)
+    }
+
+    func testSuccessfulJSONParseAndArtifactCleanup() async throws {
+        let json = #"{"text":"[музыка] Добрый день.","languages":["ru"]}"#
+        let runner = MockRunner(result: .success(SubprocessResult(
+            exitCode: 0,
+            stdout: Data(json.utf8),
+            stderr: Data())))
+        let transcriber = ParakeetTranscriber(runner: runner, binaryOverride: fakeBinary)
+        let result = try await transcriber.transcribe(
+            audioURL: audioURL,
+            modelURL: modelURL,
+            language: "auto",
+            removeArtifacts: true)
+        XCTAssertEqual(result.text, "Добрый день.")
+        XCTAssertEqual(result.detectedLanguage, "ru")
+    }
+
+    func testFailureMapsToTranscriptionFailed() async throws {
+        let runner = MockRunner(result: .success(SubprocessResult(
+            exitCode: 2,
+            stdout: Data(),
+            stderr: Data("metal backend failed".utf8))))
+        let transcriber = ParakeetTranscriber(runner: runner, binaryOverride: fakeBinary)
+        do {
+            _ = try await transcriber.transcribe(
+                audioURL: audioURL,
+                modelURL: modelURL,
+                language: "ru",
+                removeArtifacts: true)
+            XCTFail("expected transcriptionFailed")
+        } catch let error as VoxLocalError {
+            guard case .transcriptionFailed(let code, let detail) = error else {
+                return XCTFail("wrong error: \(error)")
+            }
+            XCTAssertEqual(code, 2)
+            XCTAssertTrue(detail.contains("metal backend failed"))
+        }
+    }
+}

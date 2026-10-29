@@ -4,7 +4,7 @@ VoxLocal bundles or uses the following third-party software.
 
 ## whisper.cpp (bundled)
 
-- Source: https://github.com/ggml-org/whisper.cpp — pinned to tag **v1.9.1**
+- Source: https://github.com/ggml-org/whisper.cpp — pinned to tag **v1.9.5**
 - Usage: compiled to the `whisper-cli` executable that ships inside `VoxLocal.app/Contents/MacOS/` and performs on-device speech recognition (includes ggml and its Metal backend).
 - License: MIT
 
@@ -37,6 +37,18 @@ SOFTWARE.
 - Source: https://huggingface.co/ggerganov/whisper.cpp (ggml conversions of OpenAI Whisper weights)
 - Original model: OpenAI Whisper — https://github.com/openai/whisper — MIT License.
 - Models are downloaded only on explicit user action and stored in `~/Library/Application Support/VoxLocal/models`.
+
+## NVIDIA NeMo-Speech.cpp (bundled)
+
+- Source: https://github.com/NVIDIA/NeMo-Speech.cpp — pinned to release **v0.2.0**
+- Usage: the Apple Silicon Metal runtime is bundled as the `nemo-speech` executable and supporting dynamic libraries for local Parakeet file transcription.
+- License: Apache License 2.0. The upstream license and third-party notices are copied into the application bundle at build time.
+
+## NVIDIA Parakeet TDT 0.6B v3 (downloaded on request)
+
+- Source: https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3 — pinned to revision `541d1f99c6b0c3cd0b11a95167540bb8edefd82b`
+- Usage: optional multilingual speech-recognition model downloaded only after explicit user confirmation; it is not included in the application archive.
+- License: Creative Commons Attribution 4.0 International (CC BY 4.0)
 
 ## Sparkle (bundled)
 
