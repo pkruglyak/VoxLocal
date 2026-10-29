@@ -1,8 +1,26 @@
-<?xml version="1.0" standalone="yes"?><!-- sparkle-sign-warning:
+<?xml version="1.0" standalone="yes"?>
+<!-- sparkle-sign-warning:
 IMPORTANT: This file was signed by Sparkle. Any modifications to this file requires re-signing this file with generate_appcast or sign_update! The signed signature will be embedded at the end of this file.
---><rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+-->
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
     <channel>
         <title>VoxLocal</title>
+        <item>
+            <title>1.2.1</title>
+            <pubDate>Thu, 29 Oct 2026 16:11:38 +0300</pubDate>
+            <link>https://github.com/pkruglyak/VoxLocal</link>
+            <sparkle:version>4</sparkle:version>
+            <sparkle:shortVersionString>1.2.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description sparkle:format="markdown"><![CDATA[# VoxLocal 1.2.1
+
+- Левая панель транскрибации выровнена по верхнему левому краю.
+- Поля и кнопки получили единую ширину и аккуратные отступы.
+- Область настройки стала шире, а предпросмотр корректно занимает оставшееся место.
+]]></description>
+            <enclosure url="https://github.com/pkruglyak/VoxLocal/releases/download/v1.2.1/VoxLocal-1.2.1.zip" length="3055086" type="application/octet-stream" sparkle:edSignature="cJxWyK+kNj3ymRNStha65KdXuzTP2JbnCMFdlKb742ihq6foUMRiG9AJBkc42m1USIEyZ0/zG7LlHCMjImeqCw=="/>
+        </item>
         <item>
             <title>1.2.0</title>
             <pubDate>Thu, 29 Oct 2026 15:29:14 +0300</pubDate>
@@ -18,10 +36,11 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
 - Добавлены редактируемый предпросмотр, копирование и сохранение в RTF.
 - Добавлены безопасные автоматические обновления и команда «Проверить обновления…».
 ]]></description>
-            <enclosure url="https://github.com/pkruglyak/VoxLocal/releases/download/v1.2.0/VoxLocal-1.2.0.zip" length="3052667" type="application/octet-stream" sparkle:edSignature="xzzwWnw6VILvZ9NU65vDuJe+2GN8S+UsLprNu9i0A3VrpSAHFx0Er8kgnNKEgwy+LiHblDZANlGgFVrS+nFTAw=="></enclosure>
+            <enclosure url="https://github.com/pkruglyak/VoxLocal/releases/download/v1.2.0/VoxLocal-1.2.0.zip" length="3052667" type="application/octet-stream" sparkle:edSignature="xzzwWnw6VILvZ9NU65vDuJe+2GN8S+UsLprNu9i0A3VrpSAHFx0Er8kgnNKEgwy+LiHblDZANlGgFVrS+nFTAw=="/>
         </item>
     </channel>
-</rss><!-- sparkle-signatures:
-edSignature: ciIAn+/DcqFNasauY4WaTcLvz5+CaZ8CgVK4kZ+MoioIHgLaICT2HqJ/N4pbq8GuVJK36PllrOEVFmtZk/0XCQ==
-length: 1799
+</rss>
+<!-- sparkle-signatures:
+edSignature: YP8xlClY1N3oGVG0EOD031ZYv8/vZ2aBG4D99bCmGJ3gzqz8y114whGeB+8DKi2Lyum8E4MVGBgWwr8xWSxEBw==
+length: 3012
 -->
