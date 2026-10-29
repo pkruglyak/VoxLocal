@@ -9,8 +9,8 @@ cd "$REPO_ROOT"
 
 [[ -x "$WHISPER_CLI" ]] || die "whisper-cli not built. Run ./scripts/bootstrap.sh first."
 
-VERSION="${VOXLOCAL_VERSION:-1.3.1}"
-BUILD_NUMBER="${VOXLOCAL_BUILD_NUMBER:-7}"
+VERSION="${VOXLOCAL_VERSION:-1.3.2}"
+BUILD_NUMBER="${VOXLOCAL_BUILD_NUMBER:-8}"
 ICON_FILE="$REPO_ROOT/assets/VoxLocal.icns"
 
 log "Building Swift package (release)…"

@@ -21,6 +21,7 @@ public final class FileTranscriptionController: ObservableObject {
     @Published public private(set) var detectedLanguage: String?
     @Published public private(set) var completedAt: Date?
     @Published public private(set) var isDownloadingRecommendedModel = false
+    @Published public private(set) var modelDownloadProgress: Double = 0
     @Published public private(set) var modelDownloadError: String?
 
     private let settings: SettingsStore
@@ -30,6 +31,7 @@ public final class FileTranscriptionController: ObservableObject {
     private var task: Task<Void, Never>?
     private var modelDownloadTask: Task<Void, Never>?
     private var modelSubscription: AnyCancellable?
+    private var downloadProgressSubscription: AnyCancellable?
 
     public init(
         settings: SettingsStore,
@@ -44,6 +46,9 @@ public final class FileTranscriptionController: ObservableObject {
         modelSubscription = modelManager.$installedModels
             .receive(on: DispatchQueue.main)
             .sink { [weak self] models in self?.applyModels(models) }
+        downloadProgressSubscription = modelManager.$downloadProgress
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] progress in self?.modelDownloadProgress = progress ?? 0 }
         refreshModels()
     }
 
@@ -102,6 +107,7 @@ public final class FileTranscriptionController: ObservableObject {
     public func downloadRecommendedFileModel() {
         guard !hasRecommendedFileModel, !isDownloadingRecommendedModel else { return }
         modelDownloadError = nil
+        modelDownloadProgress = 0
         isDownloadingRecommendedModel = true
         let info = recommendedFileModel
         modelDownloadTask = Task { [weak self] in
@@ -438,10 +444,16 @@ private struct ModelPickerSection: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     if controller.isDownloadingRecommendedModel {
-                        HStack(spacing: 8) {
-                            ProgressView().controlSize(.small)
-                            Text(L10n.t("file.model.recommended.downloading"))
-                                .font(.caption)
+                        VStack(alignment: .leading, spacing: 5) {
+                            HStack {
+                                Text(L10n.t("file.model.recommended.downloading"))
+                                Spacer()
+                                Text("\(Int((controller.modelDownloadProgress * 100).rounded()))%")
+                                    .monospacedDigit()
+                            }
+                            .font(.caption)
+                            ProgressView(value: controller.modelDownloadProgress, total: 1)
+                                .progressViewStyle(.linear)
                         }
                     } else {
                         Button(L10n.t("file.model.recommended.download")) {
