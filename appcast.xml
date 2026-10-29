@@ -6,6 +6,22 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
     <channel>
         <title>VoxLocal</title>
         <item>
+            <title>1.2.2</title>
+            <pubDate>Thu, 29 Oct 2026 16:32:34 +0300</pubDate>
+            <link>https://github.com/pkruglyak/VoxLocal</link>
+            <sparkle:version>5</sparkle:version>
+            <sparkle:shortVersionString>1.2.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description sparkle:format="markdown"><![CDATA[# VoxLocal 1.2.2
+
+- Удалены поля собеседников и ручного ввода названия документа в окне транскрибации файлов.
+- Название документа автоматически берётся из имени исходного файла.
+- Сведения о собеседниках удалены из предпросмотра, копируемого текста и экспорта в RTF.
+]]></description>
+            <enclosure url="https://github.com/pkruglyak/VoxLocal/releases/download/v1.2.2/VoxLocal-1.2.2.zip" length="3039720" type="application/octet-stream" sparkle:edSignature="p4zMPRacY52eJuOAX26qwJ6OPerdhYt0SFOx8psmUxUMTXU40bMTGwKzTLDJIPZT40B5vHTeCdq6aGAjlvimAA=="/>
+        </item>
+        <item>
             <title>1.2.1</title>
             <pubDate>Thu, 29 Oct 2026 16:11:38 +0300</pubDate>
             <link>https://github.com/pkruglyak/VoxLocal</link>
@@ -41,6 +57,6 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
     </channel>
 </rss>
 <!-- sparkle-signatures:
-edSignature: YP8xlClY1N3oGVG0EOD031ZYv8/vZ2aBG4D99bCmGJ3gzqz8y114whGeB+8DKi2Lyum8E4MVGBgWwr8xWSxEBw==
-length: 3012
+edSignature: 5qgNo97fMxSsqHlO7/BdqOwiJzeIZUqzwU4sDHEvdFosr8/lJaeSQLNOAR2Vqb8ma316fPZIsTwzfJa9FW5RAw==
+length: 4307
 -->
