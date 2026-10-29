@@ -42,12 +42,14 @@ public struct SettingsView: View {
                 .tabItem { Label(L10n.t("settings.tab.general"), systemImage: "gearshape") }
             TranscriptionSettingsTab(settings: settings, modelManager: deps.modelManager)
                 .tabItem { Label(L10n.t("settings.tab.transcription"), systemImage: "waveform") }
+            PermissionsSettingsTab(deps: deps)
+                .tabItem { Label(L10n.t("settings.tab.permissions"), systemImage: "checkmark.shield") }
             RefinementSettingsTab(settings: settings)
                 .tabItem { Label(L10n.t("settings.tab.refinement"), systemImage: "wand.and.stars") }
             PrivacySettingsTab(settings: settings)
                 .tabItem { Label(L10n.t("settings.tab.privacy"), systemImage: "lock.shield") }
         }
-        .frame(width: 560, height: 520)
+        .frame(width: 600, height: 560)
     }
 }
 
@@ -131,6 +133,163 @@ struct GeneralSettingsTab: View {
         }
         .formStyle(.grouped)
         .onAppear { devices = AudioDeviceFinder.inputDevices() }
+    }
+}
+
+// MARK: - Permissions and readiness
+
+struct PermissionsSettingsTab: View {
+    let deps: SettingsDependencies
+    @State private var microphone: PermissionStatus = .notDetermined
+    @State private var accessibilityTrusted = false
+    @State private var engineAvailable = false
+    @State private var selectedModelAvailable = false
+
+    private var everythingReady: Bool {
+        microphone == .granted
+            && (deps.settings.insertionMode != .automatic || accessibilityTrusted)
+            && engineAvailable
+            && selectedModelAvailable
+    }
+
+    var body: some View {
+        Form {
+            Section {
+                Label(
+                    everythingReady
+                        ? L10n.t("permissions.overall.ready")
+                        : L10n.t("permissions.overall.action"),
+                    systemImage: everythingReady ? "checkmark.seal.fill" : "exclamationmark.triangle.fill")
+                    .font(.headline)
+                    .foregroundStyle(everythingReady ? .green : .orange)
+                Text(L10n.t("permissions.overall.hint"))
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section(L10n.t("permissions.required.section")) {
+                permissionRow(
+                    title: L10n.t("permissions.microphone.title"),
+                    detail: L10n.t("permissions.microphone.detail"),
+                    granted: microphone == .granted,
+                    required: true) {
+                        if microphone == .notDetermined {
+                            Button(L10n.t("permissions.request")) {
+                                Task {
+                                    _ = await deps.permissions.requestMicrophoneAccess()
+                                    refresh()
+                                }
+                            }
+                        } else {
+                            Button(L10n.t("permissions.openSettings")) {
+                                deps.permissions.openMicrophoneSettings()
+                            }
+                        }
+                    }
+
+                permissionRow(
+                    title: L10n.t("permissions.accessibility.title"),
+                    detail: L10n.t("permissions.accessibility.detail"),
+                    granted: accessibilityTrusted,
+                    required: deps.settings.insertionMode == .automatic) {
+                        Button(accessibilityTrusted
+                               ? L10n.t("permissions.openSettings")
+                               : L10n.t("permissions.fix")) {
+                            deps.permissions.promptForAccessibility()
+                            deps.permissions.openAccessibilitySettings()
+                        }
+                    }
+
+                if !accessibilityTrusted {
+                    Label(L10n.t("permissions.accessibility.stale"), systemImage: "info.circle")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                }
+            }
+
+            Section(L10n.t("permissions.readiness.section")) {
+                readinessRow(
+                    L10n.t("permissions.engine.title"),
+                    detail: L10n.t("permissions.engine.detail"),
+                    ready: engineAvailable)
+                readinessRow(
+                    L10n.t("permissions.model.title"),
+                    detail: L10n.t("permissions.model.detail", deps.settings.whisperModel),
+                    ready: selectedModelAvailable)
+                Label(L10n.t("permissions.notNeeded"), systemImage: "hand.raised.slash")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
+                Button(L10n.t("permissions.recheck")) { refresh() }
+            }
+        }
+        .formStyle(.grouped)
+        .onAppear(perform: refresh)
+        .task {
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 1_500_000_000)
+                refresh()
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func permissionRow<Actions: View>(
+        title: String,
+        detail: String,
+        granted: Bool,
+        required: Bool,
+        @ViewBuilder actions: () -> Actions
+    ) -> some View {
+        HStack(alignment: .center, spacing: 12) {
+            Image(systemName: granted ? "checkmark.circle.fill" : "xmark.circle.fill")
+                .foregroundStyle(granted ? .green : (required ? .red : .orange))
+                .font(.title3)
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    Text(title).fontWeight(.medium)
+                    Text(required ? L10n.t("permissions.required") : L10n.t("permissions.optional"))
+                        .font(.caption2)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.secondary.opacity(0.12))
+                        .clipShape(Capsule())
+                }
+                Text(granted ? L10n.t("permissions.granted") : L10n.t("permissions.missing"))
+                    .font(.caption)
+                    .foregroundStyle(granted ? .green : (required ? .red : .orange))
+                Text(detail)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            actions()
+        }
+        .padding(.vertical, 3)
+    }
+
+    private func readinessRow(_ title: String, detail: String, ready: Bool) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: ready ? "checkmark.circle.fill" : "xmark.circle.fill")
+                .foregroundStyle(ready ? .green : .red)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).fontWeight(.medium)
+                Text(detail).font(.caption).foregroundStyle(.secondary)
+            }
+            Spacer()
+            Text(ready ? L10n.t("permissions.ready") : L10n.t("permissions.notReady"))
+                .font(.caption)
+                .foregroundStyle(ready ? .green : .red)
+        }
+    }
+
+    private func refresh() {
+        microphone = deps.permissions.microphoneStatus
+        accessibilityTrusted = deps.permissions.accessibilityTrusted
+        engineAvailable = (try? WhisperTranscriber().locateBinary()) != nil
+        selectedModelAvailable = (try? deps.modelManager.resolveModel(named: deps.settings.whisperModel)) != nil
     }
 }
 
@@ -243,8 +402,17 @@ struct TranscriptionSettingsTab: View {
                                 .foregroundStyle(.green)
                                 .accessibilityLabel(L10n.t("settings.model.installedAx"))
                         } else if modelManager.downloadingModel == info.name {
-                            ProgressView(value: modelManager.downloadProgress ?? 0)
-                                .frame(width: 90)
+                            VStack(alignment: .trailing, spacing: 3) {
+                                HStack(spacing: 6) {
+                                    ProgressView(value: modelManager.downloadProgress ?? 0)
+                                    Text("\(Int(((modelManager.downloadProgress ?? 0) * 100).rounded()))%")
+                                        .monospacedDigit()
+                                }
+                                Text(downloadSizeSummary)
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .frame(width: 145)
                             Button(L10n.t("common.cancel")) {
                                 modelManager.cancelDownload()
                             }
@@ -253,8 +421,18 @@ struct TranscriptionSettingsTab: View {
                                 confirmDownload = info
                             }
                             .disabled(modelManager.isDownloading)
+                            .help(modelManager.isDownloading
+                                  ? L10n.t("settings.model.download.wait")
+                                  : "")
                         }
                     }
+                }
+                if let name = modelManager.downloadingModel {
+                    Label(
+                        L10n.t("settings.model.download.active", displayName(for: name)),
+                        systemImage: "arrow.down.circle")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
                 if let downloadError {
                     Text(downloadError)
@@ -309,6 +487,20 @@ struct TranscriptionSettingsTab: View {
                 downloadError = L10n.t("settings.model.download.error", error.localizedDescription)
             }
         }
+    }
+
+    private var downloadSizeSummary: String {
+        let written = ByteCountFormatter.string(fromByteCount: modelManager.downloadedBytes, countStyle: .file)
+        guard modelManager.downloadTotalBytes > 0 else { return written }
+        let total = ByteCountFormatter.string(fromByteCount: modelManager.downloadTotalBytes, countStyle: .file)
+        return "\(written) / \(total)"
+    }
+
+    private func displayName(for name: String) -> String {
+        WhisperModelCatalog.info(for: name)?.displayName
+            ?? (name == ParakeetModelCatalog.recommended.name
+                ? ParakeetModelCatalog.recommended.displayName
+                : name)
     }
 }
 

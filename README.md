@@ -12,6 +12,7 @@
 - **On-device transcription** with [whisper.cpp](https://github.com/ggml-org/whisper.cpp) (pinned to `v1.9.5`), Metal-accelerated on Apple Silicon. Russian, English and auto-detection.
 - **Audio and video file transcription** with NVIDIA Parakeet TDT 0.6B v3 recommended by default, Whisper as a fallback, an editable document preview and RTF export.
 - **Secure automatic updates** through Sparkle, with signed update archives and a manual *Check for Updates…* command.
+- **Live permission diagnostics** in Settings shows microphone, Accessibility, engine and model readiness, with direct repair actions.
 - **Optional text refinement** (punctuation, capitalization, filler-word cleanup) through a **local Ollama** server on `localhost`. If Ollama is missing, unreachable, times out or returns nonsense, the raw transcript is used — dictation never breaks.
 - **System-wide insertion**: Accessibility API first, simulated ⌘V with clipboard restore second, plain "copied to clipboard" as the last resort.
 - A compact floating **overlay** shows ready / listening (with a mic level meter) / transcribing / refining / inserting / completed / cancelled / error. `Esc` cancels. The overlay never steals focus.

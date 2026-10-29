@@ -120,6 +120,7 @@
 "settings.title" = "Настройки VoxLocal";
 "settings.tab.general" = "Основные";
 "settings.tab.transcription" = "Распознавание";
+"settings.tab.permissions" = "Доступы";
 "settings.tab.refinement" = "Улучшение";
 "settings.tab.privacy" = "Конфиденциальность";
 
@@ -160,6 +161,8 @@
 "settings.model.confirm.download" = "Скачать (~%@)";
 "settings.model.confirm.message" = "Модель «%@» будет загружена с huggingface.co (официальный источник whisper.cpp). Размер около %@. Продолжить?";
 "settings.model.download.error" = "Ошибка загрузки: %@";
+"settings.model.download.active" = "Сейчас скачивается «%@». Одновременно можно загружать только одну модель; остальные кнопки включатся после завершения или отмены.";
+"settings.model.download.wait" = "Дождитесь текущей загрузки или отмените её.";
 
 "settings.recognition.section" = "Параметры распознавания";
 "settings.spoken" = "Язык речи";
@@ -193,6 +196,33 @@
 "settings.loglevel.info" = "Обычный";
 "settings.loglevel.debug" = "Подробный";
 "settings.resetOnboarding" = "Показать приветственную настройку заново";
+
+/* Доступы и готовность */
+"permissions.overall.ready" = "VoxLocal полностью готов к работе";
+"permissions.overall.action" = "Нужно исправить отмеченные пункты";
+"permissions.overall.hint" = "Статусы обновляются автоматически, пока открыта эта вкладка.";
+"permissions.required.section" = "Разрешения macOS";
+"permissions.readiness.section" = "Готовность компонентов";
+"permissions.microphone.title" = "Микрофон";
+"permissions.microphone.detail" = "Нужен для записи голоса во время диктовки.";
+"permissions.accessibility.title" = "Универсальный доступ";
+"permissions.accessibility.detail" = "Нужен для автоматической вставки распознанного текста в другие приложения.";
+"permissions.accessibility.stale" = "Если VoxLocal уже включён в системном списке, но здесь всё ещё красный статус: удалите старую запись кнопкой «−», добавьте заново /Applications/VoxLocal.app, включите переключатель и перезапустите VoxLocal.";
+"permissions.engine.title" = "Движок распознавания";
+"permissions.engine.detail" = "Проверка встроенного компонента whisper-cli.";
+"permissions.model.title" = "Модель для диктовки";
+"permissions.model.detail" = "Выбрана модель: %@";
+"permissions.notNeeded" = "Запись экрана, доступ к файлам и интернет не нужны для обычной диктовки.";
+"permissions.required" = "обязательно";
+"permissions.optional" = "необязательно";
+"permissions.granted" = "Доступ выдан";
+"permissions.missing" = "Доступ не выдан";
+"permissions.ready" = "Готово";
+"permissions.notReady" = "Не готово";
+"permissions.request" = "Запросить";
+"permissions.fix" = "Исправить…";
+"permissions.openSettings" = "Открыть…";
+"permissions.recheck" = "Проверить всё снова";
 
 /* Конфиденциальность */
 "privacy.title" = "Как VoxLocal обращается с данными";

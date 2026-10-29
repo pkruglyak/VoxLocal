@@ -120,6 +120,7 @@
 "settings.title" = "VoxLocal Settings";
 "settings.tab.general" = "General";
 "settings.tab.transcription" = "Transcription";
+"settings.tab.permissions" = "Permissions";
 "settings.tab.refinement" = "Refinement";
 "settings.tab.privacy" = "Privacy";
 
@@ -160,6 +161,8 @@
 "settings.model.confirm.download" = "Download (~%@)";
 "settings.model.confirm.message" = "The “%@” model will be downloaded from huggingface.co (the official whisper.cpp source). Size is about %@. Continue?";
 "settings.model.download.error" = "Download failed: %@";
+"settings.model.download.active" = "“%@” is downloading. Only one model can download at a time; the other buttons will become available when it finishes or is cancelled.";
+"settings.model.download.wait" = "Wait for the current download or cancel it.";
 
 "settings.recognition.section" = "Recognition options";
 "settings.spoken" = "Spoken language";
@@ -193,6 +196,33 @@
 "settings.loglevel.info" = "Normal";
 "settings.loglevel.debug" = "Verbose";
 "settings.resetOnboarding" = "Show the welcome setup again";
+
+/* Permissions and readiness */
+"permissions.overall.ready" = "VoxLocal is fully ready";
+"permissions.overall.action" = "Fix the items marked below";
+"permissions.overall.hint" = "Statuses refresh automatically while this tab is open.";
+"permissions.required.section" = "macOS permissions";
+"permissions.readiness.section" = "Component readiness";
+"permissions.microphone.title" = "Microphone";
+"permissions.microphone.detail" = "Required to record your voice during dictation.";
+"permissions.accessibility.title" = "Accessibility";
+"permissions.accessibility.detail" = "Required to insert recognized text into other applications automatically.";
+"permissions.accessibility.stale" = "If VoxLocal is already enabled in the system list but this status is still red: remove the old entry with “−”, add /Applications/VoxLocal.app again, enable it, and restart VoxLocal.";
+"permissions.engine.title" = "Recognition engine";
+"permissions.engine.detail" = "Checks the bundled whisper-cli component.";
+"permissions.model.title" = "Dictation model";
+"permissions.model.detail" = "Selected model: %@";
+"permissions.notNeeded" = "Screen Recording, file access, and internet access are not required for ordinary dictation.";
+"permissions.required" = "required";
+"permissions.optional" = "optional";
+"permissions.granted" = "Access granted";
+"permissions.missing" = "Access not granted";
+"permissions.ready" = "Ready";
+"permissions.notReady" = "Not ready";
+"permissions.request" = "Request";
+"permissions.fix" = "Fix…";
+"permissions.openSettings" = "Open…";
+"permissions.recheck" = "Check everything again";
 
 /* Privacy */
 "privacy.title" = "How VoxLocal handles your data";

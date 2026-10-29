@@ -10,8 +10,8 @@ cd "$REPO_ROOT"
 [[ -x "$WHISPER_CLI" ]] || die "whisper-cli not built. Run ./scripts/bootstrap.sh first."
 [[ -x "$NEMO_SPEECH_CLI" ]] || die "nemo-speech not installed. Run ./scripts/bootstrap.sh first."
 
-VERSION="${VOXLOCAL_VERSION:-1.4.0}"
-BUILD_NUMBER="${VOXLOCAL_BUILD_NUMBER:-9}"
+VERSION="${VOXLOCAL_VERSION:-1.4.1}"
+BUILD_NUMBER="${VOXLOCAL_BUILD_NUMBER:-10}"
 ICON_FILE="$REPO_ROOT/assets/VoxLocal.icns"
 
 log "Building Swift package (release)…"

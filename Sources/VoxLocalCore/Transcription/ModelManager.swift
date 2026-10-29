@@ -21,6 +21,8 @@ public final class ModelManager: NSObject, ObservableObject {
     @Published public private(set) var installedParakeetModel: InstalledModel?
     @Published public private(set) var downloadProgress: Double?
     @Published public private(set) var downloadingModel: String?
+    @Published public private(set) var downloadedBytes: Int64 = 0
+    @Published public private(set) var downloadTotalBytes: Int64 = 0
 
     public let modelsDirectory: URL
     private var downloadTask: URLSessionDownloadTask?
@@ -204,11 +206,15 @@ public final class ModelManager: NSObject, ObservableObject {
         await MainActor.run {
             downloadingModel = name
             downloadProgress = 0
+            downloadedBytes = 0
+            downloadTotalBytes = 0
         }
         defer {
             Task { @MainActor in
                 self.downloadingModel = nil
                 self.downloadProgress = nil
+                self.downloadedBytes = 0
+                self.downloadTotalBytes = 0
             }
         }
         Log.shared.info("model download started: \(name) (~\(approxMB) MB)")
@@ -255,9 +261,14 @@ extension ModelManager: URLSessionDownloadDelegate {
     public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask,
                            didWriteData bytesWritten: Int64, totalBytesWritten: Int64,
                            totalBytesExpectedToWrite: Int64) {
-        guard totalBytesExpectedToWrite > 0 else { return }
-        let progress = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
-        DispatchQueue.main.async { self.downloadProgress = progress }
+        let progress = totalBytesExpectedToWrite > 0
+            ? Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+            : nil
+        DispatchQueue.main.async {
+            if let progress { self.downloadProgress = progress }
+            self.downloadedBytes = totalBytesWritten
+            self.downloadTotalBytes = max(0, totalBytesExpectedToWrite)
+        }
     }
 
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
