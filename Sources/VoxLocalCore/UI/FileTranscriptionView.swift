@@ -138,6 +138,17 @@ public final class FileTranscriptionController: ObservableObject {
         state = .ready
     }
 
+    /// Removes the file from this window without touching the original file
+    /// on disk.
+    public func clearSource() {
+        guard !isWorking else { return }
+        sourceURL = nil
+        transcriptText = ""
+        detectedLanguage = nil
+        completedAt = nil
+        state = .ready
+    }
+
     public func transcribe() {
         guard let sourceURL, canTranscribe else { return }
         task?.cancel()
@@ -356,6 +367,15 @@ private struct FileDropZone: View {
             }
             .buttonStyle(.plain)
             .onDrop(of: [UTType.fileURL.identifier], isTargeted: $isDropTarget, perform: handleDrop)
+
+            if controller.sourceURL != nil {
+                HStack(spacing: 12) {
+                    Button(L10n.t("file.replace"), action: controller.chooseFile)
+                    Button(L10n.t("file.remove"), role: .destructive, action: controller.clearSource)
+                    Spacer()
+                }
+                .disabled(controller.isWorking)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

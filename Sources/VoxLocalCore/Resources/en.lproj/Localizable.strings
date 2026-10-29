@@ -64,6 +64,8 @@
 "file.section.model" = "2. Whisper model";
 "file.choose" = "Choose audio or video";
 "file.dropHint" = "or drop a file here";
+"file.replace" = "Replace…";
+"file.remove" = "Remove from window";
 "file.picker.title" = "Choose audio or video";
 "file.picker.choose" = "Choose";
 "file.model" = "Model";
