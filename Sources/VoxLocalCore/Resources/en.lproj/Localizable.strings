@@ -47,6 +47,8 @@
 "menu.start" = "Start Dictation";
 "menu.transcribeFile" = "Transcribe File…";
 "menu.checkForUpdates" = "Check for Updates…";
+"update.notification.title" = "VoxLocal Update Available";
+"update.notification.body" = "Version %@ is ready to install. Click to review and update the app.";
 "menu.stop" = "Stop & Transcribe";
 "menu.cancel" = "Cancel Dictation";
 "menu.settings" = "Settings…";

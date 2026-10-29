@@ -1,11 +1,14 @@
 import AppKit
-import Sparkle
+@preconcurrency import Sparkle
 import SwiftUI
+@preconcurrency import UserNotifications
 
 /// Application entry object: builds the dependency graph, registers the
 /// global hotkey, owns the status item and windows.
 @MainActor
-public final class AppDelegate: NSObject, NSApplicationDelegate {
+public final class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate,
+    @preconcurrency SPUStandardUserDriverDelegate,
+    @preconcurrency UNUserNotificationCenterDelegate {
     private var settings: SettingsStore!
     private var permissions: PermissionsService!
     private var modelManager: ModelManager!
@@ -14,7 +17,7 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
     private var overlay: OverlayWindowController!
     private var statusItem: StatusItemController!
     private var deps: SettingsDependencies!
-    private let updaterController: SPUStandardUpdaterController
+    private var updaterController: SPUStandardUpdaterController!
 
     private var settingsWindow: NSWindow?
     private var onboardingWindow: NSWindow?
@@ -22,11 +25,11 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
     private var fileTranscriptionController: FileTranscriptionController?
 
     public override init() {
+        super.init()
         updaterController = SPUStandardUpdaterController(
             startingUpdater: true,
-            updaterDelegate: nil,
-            userDriverDelegate: nil)
-        super.init()
+            updaterDelegate: self,
+            userDriverDelegate: self)
     }
 
     public func applicationDidFinishLaunching(_ notification: Notification) {
@@ -34,6 +37,7 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         L10n.setLanguage(settings.interfaceLanguage)
         Log.shared.level = settings.logLevel
         Log.shared.info("VoxLocal starting (v\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev"))")
+        UNUserNotificationCenter.current().delegate = self
 
         permissions = PermissionsService()
         modelManager = ModelManager()
@@ -89,6 +93,56 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         hotkeys?.unregisterEscape()
         Log.shared.info("VoxLocal terminating")
         Log.shared.sync()
+    }
+
+    // MARK: - Updates
+
+    public var supportsGentleScheduledUpdateReminders: Bool { true }
+
+    public func updater(_ updater: SPUUpdater, willScheduleUpdateCheckAfterDelay delay: TimeInterval) {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, error in
+            if let error {
+                Log.shared.error("update notification permission failed: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    public func standardUserDriverWillHandleShowingUpdate(
+        _ handleShowingUpdate: Bool,
+        forUpdate update: SUAppcastItem,
+        state: SPUUserUpdateState
+    ) {
+        NSApp.setActivationPolicy(.regular)
+        guard !state.userInitiated else { return }
+
+        let content = UNMutableNotificationContent()
+        content.title = L10n.t("update.notification.title")
+        content.body = L10n.t("update.notification.body", update.displayVersionString)
+        content.sound = .default
+        let request = UNNotificationRequest(
+            identifier: "VoxLocalUpdate",
+            content: content,
+            trigger: nil)
+        UNUserNotificationCenter.current().add(request)
+    }
+
+    public func standardUserDriverDidReceiveUserAttention(forUpdate update: SUAppcastItem) {
+        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: ["VoxLocalUpdate"])
+    }
+
+    public func standardUserDriverWillFinishUpdateSession() {
+        NSApp.setActivationPolicy(.accessory)
+    }
+
+    public func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        if response.notification.request.identifier == "VoxLocalUpdate" {
+            updaterController.checkForUpdates(nil)
+        }
+        completionHandler()
     }
 
     /// Registers the shortcut; returns a localized error message on failure.

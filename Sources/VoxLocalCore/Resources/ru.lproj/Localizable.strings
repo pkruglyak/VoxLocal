@@ -47,6 +47,8 @@
 "menu.start" = "Начать диктовку";
 "menu.transcribeFile" = "Транскрибировать файл…";
 "menu.checkForUpdates" = "Проверить обновления…";
+"update.notification.title" = "Доступно обновление VoxLocal";
+"update.notification.body" = "Версия %@ готова к установке. Нажмите, чтобы посмотреть и обновить приложение.";
 "menu.stop" = "Остановить и распознать";
 "menu.cancel" = "Отменить диктовку";
 "menu.settings" = "Настройки…";
