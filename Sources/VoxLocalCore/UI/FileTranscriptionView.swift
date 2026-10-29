@@ -274,12 +274,15 @@ public struct FileTranscriptionView: View {
         VStack(spacing: 0) {
             header
             Divider()
-            HStack(spacing: 0) {
+            HStack(alignment: .top, spacing: 0) {
                 FileSetupPane(controller: controller, openSettings: openSettings)
-                    .frame(width: 290)
+                    .frame(width: 360, alignment: .topLeading)
+                    .frame(maxHeight: .infinity, alignment: .topLeading)
                 Divider()
                 FilePreviewPane(controller: controller)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .frame(minWidth: 880, minHeight: 650)
         .onAppear { controller.refreshModels() }
@@ -314,8 +317,10 @@ private struct FileSetupPane: View {
                 ParticipantSection(controller: controller)
                 TranscriptionActionSection(controller: controller)
             }
-            .padding(20)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(24)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }
 
@@ -441,6 +446,7 @@ private struct ParticipantRow: View {
                 .help(L10n.t("file.participant.remove"))
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -475,6 +481,7 @@ private struct TranscriptionActionSection: View {
                 .disabled(!controller.canTranscribe)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -497,6 +504,7 @@ private struct FilePreviewPane: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
