@@ -6,6 +6,21 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
     <channel>
         <title>VoxLocal</title>
         <item>
+            <title>1.3.2</title>
+            <pubDate>Thu, 29 Oct 2026 17:25:39 +0300</pubDate>
+            <link>https://github.com/pkruglyak/VoxLocal</link>
+            <sparkle:version>8</sparkle:version>
+            <sparkle:shortVersionString>1.3.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description sparkle:format="markdown"><![CDATA[# VoxLocal 1.3.2
+
+- При загрузке Large v3 Turbo в окне транскрибации показывается полоса прогресса.
+- Рядом с полосой отображается точный процент загрузки модели.
+]]></description>
+            <enclosure url="https://github.com/pkruglyak/VoxLocal/releases/download/v1.3.2/VoxLocal-1.3.2.zip" length="3063246" type="application/octet-stream" sparkle:edSignature="bUtPwOIUjhwIfPi+inpC92U2j2NjtjANtW47qOfQDBt6+nmhD1hhMQ3MXSsfIeAC7cDH5mOTIWHtLlXqBNb6Dw=="/>
+        </item>
+        <item>
             <title>1.3.1</title>
             <pubDate>Thu, 29 Oct 2026 17:24:21 +0300</pubDate>
             <link>https://github.com/pkruglyak/VoxLocal</link>
@@ -38,25 +53,9 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
 ]]></description>
             <enclosure url="https://github.com/pkruglyak/VoxLocal/releases/download/v1.3.0/VoxLocal-1.3.0.zip" length="3056240" type="application/octet-stream" sparkle:edSignature="qkXbTft6MOhdtIURuujxk601n8qUhGzsn8MiUfTqmThQxWR57RZVt9nL7HUgNai0/Vg+gv6JJ6pzg+mRQm1TDg=="/>
         </item>
-        <item>
-            <title>1.2.2</title>
-            <pubDate>Thu, 29 Oct 2026 16:32:34 +0300</pubDate>
-            <link>https://github.com/pkruglyak/VoxLocal</link>
-            <sparkle:version>5</sparkle:version>
-            <sparkle:shortVersionString>1.2.2</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <description sparkle:format="markdown"><![CDATA[# VoxLocal 1.2.2
-
-- Удалены поля собеседников и ручного ввода названия документа в окне транскрибации файлов.
-- Название документа автоматически берётся из имени исходного файла.
-- Сведения о собеседниках удалены из предпросмотра, копируемого текста и экспорта в RTF.
-]]></description>
-            <enclosure url="https://github.com/pkruglyak/VoxLocal/releases/download/v1.2.2/VoxLocal-1.2.2.zip" length="3039720" type="application/octet-stream" sparkle:edSignature="p4zMPRacY52eJuOAX26qwJ6OPerdhYt0SFOx8psmUxUMTXU40bMTGwKzTLDJIPZT40B5vHTeCdq6aGAjlvimAA=="/>
-        </item>
     </channel>
 </rss>
 <!-- sparkle-signatures:
-edSignature: 8qJQ+YlNKJovPtL4OTfm6QwjJxuFq2ko2iMbnfu/B8LdwQTEkVEoGpPh+Y5arlbFMgGUUq/4KggYSWE7T2/XBw==
-length: 4406
+edSignature: h8yWFRCTPxn2NXk8AP2W63WZlibTYGPD0IXpYL8J++n5+7ltrEeRUtpOcJd8ETlwQvnHlvKE4zzbYqclFC67Dg==
+length: 4204
 -->
