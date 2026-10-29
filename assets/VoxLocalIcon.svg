@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="VoxLocal recording control icon">
+  <rect x="92" y="92" width="840" height="840" rx="188" fill="#f7f7f7" stroke="#e7e7e7" stroke-width="10"/>
+  <rect x="162" y="416" width="700" height="184" rx="92" fill="#050505"/>
+  <circle cx="262" cy="508" r="64" fill="#5b5b5b"/>
+  <path d="M240 486l44 44M284 486l-44 44" fill="none" stroke="#fff" stroke-width="18" stroke-linecap="round"/>
+  <rect x="398" y="466" width="16" height="84" rx="8" fill="#fff"/>
+  <rect x="428" y="452" width="16" height="112" rx="8" fill="#fff"/>
+  <rect x="458" y="440" width="16" height="136" rx="8" fill="#fff"/>
+  <rect x="488" y="432" width="16" height="152" rx="8" fill="#fff"/>
+  <rect x="518" y="432" width="16" height="152" rx="8" fill="#fff"/>
+  <rect x="548" y="440" width="16" height="136" rx="8" fill="#fff"/>
+  <rect x="578" y="452" width="16" height="112" rx="8" fill="#fff"/>
+  <rect x="608" y="466" width="16" height="84" rx="8" fill="#fff"/>
+  <circle cx="762" cy="508" r="64" fill="#ff6f82"/>
+  <rect x="730" y="476" width="64" height="64" rx="13" fill="#fff"/>
+</svg>

@@ -38,6 +38,12 @@ SOFTWARE.
 - Original model: OpenAI Whisper — https://github.com/openai/whisper — MIT License.
 - Models are downloaded only on explicit user action and stored in `~/Library/Application Support/VoxLocal/models`.
 
+## Sparkle (bundled)
+
+- Source: https://github.com/sparkle-project/Sparkle — version **2.10.0**
+- Usage: secure update discovery, download, verification and installation.
+- License: MIT
+
 ## CMake (build tool only, not distributed)
 
 - Source: https://cmake.org (Kitware), version 3.30.5, downloaded into `vendor/tools/` by `scripts/bootstrap.sh` **only if** cmake is not already installed.

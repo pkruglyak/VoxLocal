@@ -13,6 +13,21 @@ public enum L10n {
     public private(set) static var language: Language = .russian
 
     private static var overrideBundle: Bundle?
+    /// SwiftPM's generated `Bundle.module` accessor expects the resource
+    /// bundle beside the executable when the app is assembled without Xcode.
+    /// A signed macOS app must keep resources under `Contents/Resources`, so
+    /// prefer that standard location and retain Bundle.module for `swift run`.
+    private static let resourceBundle: Bundle = {
+        let name = "VoxLocal_VoxLocalCore.bundle"
+        let candidates = [
+            Bundle.main.resourceURL?.appendingPathComponent(name),
+            Bundle.main.bundleURL.appendingPathComponent(name),
+        ]
+        for case let url? in candidates {
+            if let bundle = Bundle(url: url) { return bundle }
+        }
+        return Bundle.module
+    }()
 
     public static func setLanguage(_ lang: Language) {
         language = lang
@@ -20,7 +35,7 @@ public enum L10n {
         case .system:
             overrideBundle = nil
         case .russian, .english:
-            if let path = Bundle.module.path(forResource: lang.rawValue, ofType: "lproj"),
+            if let path = resourceBundle.path(forResource: lang.rawValue, ofType: "lproj"),
                let bundle = Bundle(path: path) {
                 overrideBundle = bundle
             } else {
@@ -30,7 +45,7 @@ public enum L10n {
     }
 
     public static func t(_ key: String) -> String {
-        let bundle = overrideBundle ?? Bundle.module
+        let bundle = overrideBundle ?? resourceBundle
         return bundle.localizedString(forKey: key, value: key, table: nil)
     }
 

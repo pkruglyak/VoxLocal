@@ -45,12 +45,54 @@
 /* Menu */
 "menu.status" = "Status: %@";
 "menu.start" = "Start Dictation";
+"menu.transcribeFile" = "Transcribe File…";
+"menu.checkForUpdates" = "Check for Updates…";
 "menu.stop" = "Stop & Transcribe";
 "menu.cancel" = "Cancel Dictation";
 "menu.settings" = "Settings…";
 "menu.models" = "Open Model Folder";
 "menu.logs" = "Open Logs";
 "menu.quit" = "Quit VoxLocal";
+
+/* File transcription */
+"file.window.title" = "File Transcription";
+"file.title" = "File Transcription";
+"file.subtitle" = "Transcribe audio or video locally and save a polished document.";
+"file.section.file" = "1. File";
+"file.section.model" = "2. Whisper model";
+"file.section.document" = "3. Document";
+"file.choose" = "Choose audio or video";
+"file.dropHint" = "or drop a file here";
+"file.picker.title" = "Choose audio or video";
+"file.picker.choose" = "Choose";
+"file.model" = "Model";
+"file.noModels" = "Download a Whisper model in Settings first.";
+"file.openSettings" = "Open Settings";
+"file.document.name" = "Document title";
+"file.participants.hint" = "Names appear in the document header. You can edit the transcript manually.";
+"file.participant.placeholder" = "Participant %d";
+"file.participant.add" = "Add participant";
+"file.participant.remove" = "Remove participant";
+"file.transcribe" = "Transcribe";
+"file.status.preparing" = "Preparing audio track…";
+"file.status.transcribing" = "Transcribing speech…";
+"file.preview.title" = "Document preview";
+"file.preview.empty.title" = "Your document will appear here";
+"file.preview.empty.text" = "Choose a file and model, then start transcription.";
+"file.copy" = "Copy";
+"file.save" = "Save…";
+"file.save.title" = "Save Document";
+"file.save.button" = "Save";
+"file.document.untitled" = "Transcript";
+"file.document.source" = "Source file";
+"file.document.model" = "Model";
+"file.document.date" = "Date";
+"file.document.participants" = "Participants";
+"file.document.transcript" = "Transcript";
+"file.error.noAudio" = "No audio track was found in this file.";
+"file.error.read" = "Could not read audio: %@";
+"file.error.write" = "Could not prepare audio: %@";
+"file.error.save" = "Could not save the document: %@";
 
 /* Models */
 "models.download.busy" = "Another model is already downloading.";

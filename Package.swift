@@ -5,9 +5,15 @@ let package = Package(
     name: "VoxLocal",
     defaultLocalization: "ru",
     platforms: [.macOS(.v14)],
+    dependencies: [
+        .package(url: "https://github.com/sparkle-project/Sparkle", exact: "2.10.0"),
+    ],
     targets: [
         .target(
             name: "VoxLocalCore",
+            dependencies: [
+                .product(name: "Sparkle", package: "Sparkle"),
+            ],
             path: "Sources/VoxLocalCore",
             resources: [.process("Resources")]
         ),

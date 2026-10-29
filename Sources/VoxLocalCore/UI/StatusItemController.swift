@@ -9,17 +9,26 @@ public final class StatusItemController: NSObject, NSMenuDelegate {
     private let dictation: DictationController
     private let modelManager: ModelManager
     private let openSettings: () -> Void
+    private let openFileTranscription: () -> Void
+    private let checkForUpdates: () -> Void
+    private let canCheckForUpdates: () -> Bool
     private var cancellables = Set<AnyCancellable>()
 
     public init(
         dictation: DictationController,
         modelManager: ModelManager,
-        openSettings: @escaping () -> Void
+        openSettings: @escaping () -> Void,
+        openFileTranscription: @escaping () -> Void,
+        checkForUpdates: @escaping () -> Void,
+        canCheckForUpdates: @escaping () -> Bool
     ) {
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         self.dictation = dictation
         self.modelManager = modelManager
         self.openSettings = openSettings
+        self.openFileTranscription = openFileTranscription
+        self.checkForUpdates = checkForUpdates
+        self.canCheckForUpdates = canCheckForUpdates
         super.init()
 
         let menu = NSMenu()
@@ -74,6 +83,14 @@ public final class StatusItemController: NSObject, NSMenuDelegate {
         start.isEnabled = state == .idle
         menu.addItem(start)
 
+        let transcribeFile = NSMenuItem(
+            title: L10n.t("menu.transcribeFile"),
+            action: #selector(openFileTranscriptionWindow),
+            keyEquivalent: "")
+        transcribeFile.target = self
+        transcribeFile.isEnabled = state == .idle
+        menu.addItem(transcribeFile)
+
         let stop = NSMenuItem(title: L10n.t("menu.stop"), action: #selector(stopDictation), keyEquivalent: "")
         stop.target = self
         stop.isEnabled = state == .recording
@@ -98,6 +115,14 @@ public final class StatusItemController: NSObject, NSMenuDelegate {
         logs.target = self
         menu.addItem(logs)
 
+        let updates = NSMenuItem(
+            title: L10n.t("menu.checkForUpdates"),
+            action: #selector(checkForUpdatesNow),
+            keyEquivalent: "")
+        updates.target = self
+        updates.isEnabled = canCheckForUpdates()
+        menu.addItem(updates)
+
         menu.addItem(.separator())
 
         let quit = NSMenuItem(title: L10n.t("menu.quit"), action: #selector(quit), keyEquivalent: "q")
@@ -109,6 +134,8 @@ public final class StatusItemController: NSObject, NSMenuDelegate {
     @objc private func stopDictation() { dictation.stopAndProcess() }
     @objc private func cancelDictation() { dictation.cancelDictation() }
     @objc private func openSettingsWindow() { openSettings() }
+    @objc private func openFileTranscriptionWindow() { openFileTranscription() }
+    @objc private func checkForUpdatesNow() { checkForUpdates() }
 
     @objc private func openModelsFolder() {
         NSWorkspace.shared.open(modelManager.modelsDirectory)

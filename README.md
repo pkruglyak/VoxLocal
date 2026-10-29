@@ -10,6 +10,8 @@
   - *press-and-hold*: record while held, transcribe on release;
   - *toggle*: press to start, press again to stop.
 - **On-device transcription** with [whisper.cpp](https://github.com/ggml-org/whisper.cpp) (pinned to `v1.9.1`), Metal-accelerated on Apple Silicon. Russian, English and auto-detection.
+- **Audio and video file transcription** with model selection, participant names, an editable document preview and RTF export.
+- **Secure automatic updates** through Sparkle, with signed update archives and a manual *Check for Updates…* command.
 - **Optional text refinement** (punctuation, capitalization, filler-word cleanup) through a **local Ollama** server on `localhost`. If Ollama is missing, unreachable, times out or returns nonsense, the raw transcript is used — dictation never breaks.
 - **System-wide insertion**: Accessibility API first, simulated ⌘V with clipboard restore second, plain "copied to clipboard" as the last resort.
 - A compact floating **overlay** shows ready / listening (with a mic level meter) / transcribing / refining / inserting / completed / cancelled / error. `Esc` cancels. The overlay never steals focus.
@@ -18,7 +20,7 @@
 ## Privacy model
 
 - Audio is recorded to a temporary WAV, transcribed locally and **deleted immediately** after success, cancellation or error.
-- **No cloud APIs, no API keys, no accounts.** The only network access is downloading a Whisper model — you start it explicitly and see the size first.
+- **No cloud speech APIs, no API keys, no accounts.** Network access is limited to explicit Whisper model downloads and signed update checks/downloads from this project's GitHub releases.
 - Ollama refinement talks to `http://127.0.0.1:11434` (configurable, **loopback addresses only** — remote hosts are rejected).
 - **No analytics, telemetry, tracking or crash reporting.**
 - Logs never contain audio, transcripts or clipboard contents. Details: [PRIVACY.md](PRIVACY.md).
@@ -34,7 +36,7 @@
 ## Build & run
 
 ```bash
-git clone https://github.com/romarayt/VoxLocal.git && cd VoxLocal
+git clone https://github.com/pkruglyak/VoxLocal.git && cd VoxLocal
 
 ./scripts/bootstrap.sh    # checks tools, fetches project-local cmake if needed,
                           # clones whisper.cpp v1.9.1, builds whisper-cli (Metal)
@@ -43,6 +45,9 @@ git clone https://github.com/romarayt/VoxLocal.git && cd VoxLocal
 ./scripts/build_app.sh    # builds dist/VoxLocal.app (ad-hoc signed)
 ./scripts/run.sh          # launches the app
 ```
+
+Maintainers can publish a signed Sparkle update with
+`./scripts/publish_update.sh <version> <build-number> <release-notes.md>`.
 
 No Homebrew, CocoaPods or other global package managers are required; everything is project-local (`vendor/`).
 

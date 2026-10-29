@@ -1,4 +1,5 @@
 import AppKit
+import Sparkle
 import SwiftUI
 
 /// Application entry object: builds the dependency graph, registers the
@@ -13,11 +14,18 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
     private var overlay: OverlayWindowController!
     private var statusItem: StatusItemController!
     private var deps: SettingsDependencies!
+    private let updaterController: SPUStandardUpdaterController
 
     private var settingsWindow: NSWindow?
     private var onboardingWindow: NSWindow?
+    private var fileTranscriptionWindow: NSWindow?
+    private var fileTranscriptionController: FileTranscriptionController?
 
     public override init() {
+        updaterController = SPUStandardUpdaterController(
+            startingUpdater: true,
+            updaterDelegate: nil,
+            userDriverDelegate: nil)
         super.init()
     }
 
@@ -54,7 +62,12 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = StatusItemController(
             dictation: dictation,
             modelManager: modelManager,
-            openSettings: { [weak self] in self?.showSettings() })
+            openSettings: { [weak self] in self?.showSettings() },
+            openFileTranscription: { [weak self] in self?.showFileTranscription() },
+            checkForUpdates: { [weak self] in self?.updaterController.checkForUpdates(nil) },
+            canCheckForUpdates: { [weak self] in
+                self?.updaterController.updater.canCheckForUpdates ?? false
+            })
 
         hotkeys.onMainKeyDown = { [weak self] in self?.dictation.handleHotkeyDown() }
         hotkeys.onMainKeyUp = { [weak self] in self?.dictation.handleHotkeyUp() }
@@ -129,6 +142,29 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
             onboardingWindow = window
         }
         onboardingWindow?.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    public func showFileTranscription() {
+        if fileTranscriptionWindow == nil {
+            let controller = FileTranscriptionController(
+                settings: settings,
+                modelManager: modelManager)
+            let view = FileTranscriptionView(
+                controller: controller,
+                openSettings: { [weak self] in self?.showSettings() })
+            let window = NSWindow(contentViewController: NSHostingController(rootView: view))
+            window.title = L10n.t("file.window.title")
+            window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
+            window.setContentSize(NSSize(width: 980, height: 720))
+            window.minSize = NSSize(width: 880, height: 650)
+            window.isReleasedWhenClosed = false
+            window.center()
+            fileTranscriptionController = controller
+            fileTranscriptionWindow = window
+        }
+        fileTranscriptionController?.refreshModels()
+        fileTranscriptionWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
 }

@@ -29,7 +29,7 @@ public final class OverlayWindowController {
 
     private func makePanel() -> NSPanel {
         let panel = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 300, height: 72),
+            contentRect: NSRect(x: 0, y: 0, width: 270, height: 66),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false)
@@ -75,43 +75,106 @@ public final class OverlayWindowController {
     }
 }
 
-/// SwiftUI content of the overlay: state icon, title, secondary message and
-/// a live microphone level meter while listening.
+/// SwiftUI content of the overlay: a compact recording control pill while
+/// listening, and short status feedback for the remaining pipeline states.
 struct OverlayView: View {
     @ObservedObject var dictation: DictationController
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        HStack(spacing: 12) {
+        Group {
+            if dictation.state == .recording {
+                recordingPill
+            } else {
+                statusPill
+            }
+        }
+        .frame(width: 270, height: 66)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(L10n.t("app.name")): \(title). \(subtitle)")
+    }
+
+    private var recordingPill: some View {
+        HStack(spacing: 13) {
+            Button {
+                dictation.cancelDictation()
+            } label: {
+                Circle()
+                    .fill(Color.white.opacity(0.24))
+                    .frame(width: 38, height: 38)
+                    .overlay(
+                        Image(systemName: "xmark")
+                            .font(.system(size: 19, weight: .bold))
+                            .foregroundStyle(.white.opacity(0.92))
+                    )
+                    .contentShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(L10n.t("overlay.esc"))
+
+            LevelMeter(level: dictation.micLevel, animate: !reduceMotion)
+                .frame(width: 106, height: 34)
+                .accessibilityLabel(L10n.t("overlay.level.ax"))
+
+            Button {
+                dictation.stopAndProcess()
+            } label: {
+                Circle()
+                    .fill(Color(red: 1.0, green: 0.44, blue: 0.51))
+                    .frame(width: 44, height: 44)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6, style: .continuous)
+                            .fill(.white)
+                            .frame(width: 20, height: 20)
+                    )
+                    .shadow(color: .black.opacity(0.28), radius: 5, x: 0, y: 3)
+                    .contentShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(L10n.t("menu.stop"))
+        }
+        .padding(.horizontal, 12)
+        .frame(width: 250, height: 54)
+        .background(
+            RoundedRectangle(cornerRadius: 27, style: .continuous)
+                .fill(Color.black.opacity(0.94))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 27, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.10), lineWidth: 1)
+        )
+    }
+
+    private var statusPill: some View {
+        HStack(spacing: 10) {
             stateIcon
                 .frame(width: 26, height: 26)
+
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
                     .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(.white)
                     .lineLimit(1)
-                if dictation.state == .recording {
-                    LevelMeter(level: dictation.micLevel, animate: !reduceMotion)
-                        .frame(height: 10)
-                        .accessibilityLabel(L10n.t("overlay.level.ax"))
-                } else if !subtitle.isEmpty {
+                if !subtitle.isEmpty {
                     Text(subtitle)
-                        .font(.system(size: 11))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.62))
+                        .lineLimit(1)
                 }
             }
+
             Spacer(minLength: 0)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .frame(width: 300)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .strokeBorder(Color.primary.opacity(0.08))
+        .padding(.horizontal, 13)
+        .frame(width: 250, height: 54)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Color.black.opacity(0.86))
         )
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(L10n.t("app.name")): \(title). \(subtitle)")
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.10), lineWidth: 1)
+        )
     }
 
     private var title: String {
@@ -135,66 +198,61 @@ struct OverlayView: View {
         switch dictation.state {
         case .preparing:
             Image(systemName: "mic")
-                .font(.system(size: 18))
-                .foregroundStyle(.secondary)
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.72))
         case .recording:
             Image(systemName: "mic.fill")
-                .font(.system(size: 18))
+                .font(.system(size: 17, weight: .semibold))
                 .foregroundStyle(.red)
         case .stopping, .transcribing:
             ProgressView()
                 .controlSize(.small)
+                .tint(.white)
         case .refining:
             Image(systemName: "wand.and.stars")
-                .font(.system(size: 17))
-                .foregroundStyle(.purple)
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(.white)
         case .inserting:
             Image(systemName: "text.insert")
-                .font(.system(size: 17))
-                .foregroundStyle(.blue)
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(.white)
         case .completed:
             Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 18))
+                .font(.system(size: 18, weight: .semibold))
                 .foregroundStyle(.green)
         case .cancelled:
-            Image(systemName: "xmark.circle")
-                .font(.system(size: 18))
-                .foregroundStyle(.secondary)
+            Image(systemName: "xmark.circle.fill")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.72))
         case .error:
             Image(systemName: "exclamationmark.triangle.fill")
-                .font(.system(size: 17))
+                .font(.system(size: 17, weight: .semibold))
                 .foregroundStyle(.orange)
         case .idle:
             Image(systemName: "mic")
-                .font(.system(size: 18))
-                .foregroundStyle(.secondary)
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.72))
         }
     }
 }
 
-/// Simple animated bar meter driven by the recorder's RMS level.
+/// Compact waveform-style meter driven by the recorder's RMS level.
 struct LevelMeter: View {
     let level: Float
     let animate: Bool
-    private let barCount = 12
+    private let barPattern: [CGFloat] = [0.38, 0.54, 0.72, 0.88, 1.0, 1.0, 0.88, 0.72, 0.54, 0.38]
 
     var body: some View {
-        GeometryReader { geo in
-            HStack(alignment: .center, spacing: 2) {
-                ForEach(0..<barCount, id: \.self) { index in
-                    let threshold = Float(index) / Float(barCount)
-                    let active = level > threshold
-                    RoundedRectangle(cornerRadius: 1)
-                        .fill(active ? barColor(threshold) : Color.primary.opacity(0.15))
-                        .frame(width: (geo.size.width - CGFloat(barCount - 1) * 2) / CGFloat(barCount))
-                }
+        HStack(alignment: .center, spacing: 5) {
+            ForEach(barPattern.indices, id: \.self) { index in
+                let threshold = Float(index + 1) / Float(barPattern.count + 1)
+                let boostedLevel = min(1, max(0.18, CGFloat(level) * 1.35))
+                let height = 30 * barPattern[index] * (0.72 + boostedLevel * 0.42)
+                RoundedRectangle(cornerRadius: 5, style: .continuous)
+                    .fill(level > threshold ? Color.white : Color.white.opacity(0.28))
+                    .frame(width: 6, height: height)
             }
         }
         .animation(animate ? .linear(duration: 0.08) : nil, value: level)
-    }
-
-    private func barColor(_ threshold: Float) -> Color {
-        if threshold > 0.8 { return .orange }
-        return .green
     }
 }
