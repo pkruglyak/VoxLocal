@@ -69,6 +69,10 @@
 "file.model" = "Model";
 "file.noModels" = "Download a Whisper model in Settings first.";
 "file.openSettings" = "Open Settings";
+"file.model.recommended.title" = "Best quality for files";
+"file.model.recommended.text" = "Large v3 Turbo is more accurate on long recordings. About %@, downloaded once.";
+"file.model.recommended.download" = "Download Large v3 Turbo…";
+"file.model.recommended.downloading" = "Downloading Large v3 Turbo…";
 "file.transcribe" = "Transcribe";
 "file.status.preparing" = "Preparing audio track…";
 "file.status.transcribing" = "Transcribing speech…";
@@ -91,6 +95,12 @@
 
 /* Models */
 "models.download.busy" = "Another model is already downloading.";
+"model.base.title" = "Fast · Base";
+"model.base.description" = "Default for microphone dictation — fast and efficient";
+"model.small.title" = "Balanced · Small";
+"model.small.description" = "A balance of speed and accuracy";
+"model.large-v3-turbo.title" = "Best · Large v3 Turbo";
+"model.large-v3-turbo.description" = "Highest quality for audio and video files";
 
 /* Refinement presets */
 "refine.preset.rawTranscript" = "Raw transcript";
@@ -133,6 +143,7 @@
 "settings.language.ui.system" = "Match system";
 
 "settings.model.installed" = "Installed models";
+"settings.model.microphone" = "Model for microphone dictation";
 "settings.model.none" = "No models installed yet. Download one from the list below.";
 "settings.model" = "Active model";
 "settings.model.notInstalled" = "%@ (not installed)";

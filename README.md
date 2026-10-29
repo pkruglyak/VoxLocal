@@ -10,7 +10,7 @@
   - *press-and-hold*: record while held, transcribe on release;
   - *toggle*: press to start, press again to stop.
 - **On-device transcription** with [whisper.cpp](https://github.com/ggml-org/whisper.cpp) (pinned to `v1.9.1`), Metal-accelerated on Apple Silicon. Russian, English and auto-detection.
-- **Audio and video file transcription** with model selection, an editable document preview and RTF export.
+- **Audio and video file transcription** with `large-v3-turbo` recommended by default, an editable document preview and RTF export.
 - **Secure automatic updates** through Sparkle, with signed update archives and a manual *Check for Updates…* command.
 - **Optional text refinement** (punctuation, capitalization, filler-word cleanup) through a **local Ollama** server on `localhost`. If Ollama is missing, unreachable, times out or returns nonsense, the raw transcript is used — dictation never breaks.
 - **System-wide insertion**: Accessibility API first, simulated ⌘V with clipboard restore second, plain "copied to clipboard" as the last resort.
@@ -30,7 +30,7 @@
 - macOS **14+** (built and tested on macOS 26, Apple Silicon).
 - Apple Silicon recommended (Metal acceleration). Intel builds work without Metal.
 - Xcode **Command Line Tools** (or full Xcode) to build.
-- Disk space: ~500 MB for build artifacts + your chosen model (base ≈ 148 MB, small ≈ 488 MB, large-v3 ≈ 3.1 GB).
+- Disk space: ~500 MB for build artifacts + your chosen model (`base` ≈ 148 MB, `small` ≈ 488 MB, `large-v3-turbo` ≈ 1.6 GB).
 - Optional: [Ollama](https://ollama.com) with any instruct model (e.g. `ollama pull qwen2.5:3b`).
 
 ## Build & run
@@ -57,7 +57,7 @@ The app opens an onboarding wizard that walks through all of this:
 
 1. **Microphone** — macOS shows a prompt at first recording; or System Settings → Privacy & Security → Microphone → enable *VoxLocal*.
 2. **Accessibility** (for inserting text into other apps) — System Settings → Privacy & Security → Accessibility → add/enable *VoxLocal*. Without it the app still works: text is copied to the clipboard and you paste with ⌘V.
-3. **Model** — download `base` (recommended) from the app (Settings → Transcription) or with `./scripts/download_model.sh`.
+3. **Model** — download `base` (the microphone default) from the app (Settings → Transcription) or with `./scripts/download_model.sh`. File transcription recommends `large-v3-turbo` and offers to download it only after explicit confirmation.
 4. **Ollama (optional)** — install from ollama.com, `ollama pull qwen2.5:3b`, then enable refinement in Settings → Refinement and pick the model. Change the model any time in the same tab.
 
 > **Note on ad-hoc signing:** each rebuild produces a new signature, so macOS treats it as a new app — you may need to re-grant Microphone/Accessibility after rebuilding.
@@ -76,7 +76,7 @@ Shortcut & mode (hold/toggle), microphone device, Whisper model & spoken languag
 | "No speech model is installed" | Download one in Settings → Transcription (or `./scripts/download_model.sh base`). |
 | "whisper-cli not found" | Run `./scripts/bootstrap.sh`, then `./scripts/build_app.sh` again. |
 | Refinement never applies | Check Settings → Refinement → "Check": the Ollama server and model must both exist. The endpoint must be a localhost address. |
-| Recognition is slow | Use a smaller model (`base`/`tiny`) or increase threads in Settings → Transcription. |
+| Recognition is slow | Use `base` for microphone dictation or `small` as the balanced option; increase threads in Settings → Transcription if needed. |
 | Reset macOS permissions | `tccutil reset Microphone org.voxlocal.VoxLocal && tccutil reset Accessibility org.voxlocal.VoxLocal` |
 
 Logs: menu bar → *Open Logs* (`~/Library/Logs/VoxLocal/`, bounded size, privacy-filtered).
@@ -87,7 +87,7 @@ Logs: menu bar → *Open Logs* (`~/Library/Logs/VoxLocal/`, bounded size, privac
 - While dictation is active, `Esc` is captured globally to allow cancellation; it is released as soon as the session ends.
 - Whisper transcribes after recording stops (no streaming partial results).
 - Some apps that block synthetic paste (rare, e.g. certain secure terminals) fall back to clipboard-only mode.
-- `large-v3` on 8 GB Macs can be slow/memory-hungry; `base`/`small` recommended.
+- `large-v3-turbo` gives the best file accuracy but needs more memory and disk; use `base` or `small` on constrained Macs.
 
 ## Uninstall
 

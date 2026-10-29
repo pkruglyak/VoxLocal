@@ -20,12 +20,16 @@ public final class FileTranscriptionController: ObservableObject {
     @Published public var transcriptText = ""
     @Published public private(set) var detectedLanguage: String?
     @Published public private(set) var completedAt: Date?
+    @Published public private(set) var isDownloadingRecommendedModel = false
+    @Published public private(set) var modelDownloadError: String?
 
     private let settings: SettingsStore
     private let modelManager: ModelManager
     private let transcriber: WhisperTranscriber
     private let converter: MediaAudioConverter
     private var task: Task<Void, Never>?
+    private var modelDownloadTask: Task<Void, Never>?
+    private var modelSubscription: AnyCancellable?
 
     public init(
         settings: SettingsStore,
@@ -37,6 +41,9 @@ public final class FileTranscriptionController: ObservableObject {
         self.modelManager = modelManager
         self.transcriber = transcriber
         self.converter = converter
+        modelSubscription = modelManager.$installedModels
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] models in self?.applyModels(models) }
         refreshModels()
     }
 
@@ -67,12 +74,47 @@ public final class FileTranscriptionController: ObservableObject {
     }
 
     private func applyModels(_ models: [ModelManager.InstalledModel]) {
-        installedModels = models
+        let recommended = WhisperModelCatalog.models.compactMap { info in
+            models.first { $0.name == info.name }
+        }
+        installedModels = recommended.isEmpty ? models : recommended
         if selectedModel.isEmpty || !installedModels.contains(where: { $0.name == selectedModel }) {
-            if installedModels.contains(where: { $0.name == settings.whisperModel }) {
-                selectedModel = settings.whisperModel
-            } else {
-                selectedModel = installedModels.first?.name ?? ""
+            let preferredNames = [
+                WhisperModelCatalog.fileDefaultModelName,
+                "small",
+                settings.whisperModel,
+                WhisperModelCatalog.microphoneDefaultModelName,
+            ]
+            selectedModel = preferredNames.first(where: { name in
+                installedModels.contains(where: { $0.name == name })
+            }) ?? installedModels.first?.name ?? ""
+        }
+    }
+
+    public var recommendedFileModel: WhisperModelInfo {
+        WhisperModelCatalog.info(for: WhisperModelCatalog.fileDefaultModelName)!
+    }
+
+    public var hasRecommendedFileModel: Bool {
+        installedModels.contains { $0.name == WhisperModelCatalog.fileDefaultModelName }
+    }
+
+    public func downloadRecommendedFileModel() {
+        guard !hasRecommendedFileModel, !isDownloadingRecommendedModel else { return }
+        modelDownloadError = nil
+        isDownloadingRecommendedModel = true
+        let info = recommendedFileModel
+        modelDownloadTask = Task { [weak self] in
+            guard let self else { return }
+            defer { self.isDownloadingRecommendedModel = false }
+            do {
+                _ = try await self.modelManager.download(info)
+                self.refreshModels()
+                self.selectedModel = info.name
+            } catch is CancellationError {
+            } catch let error as URLError where error.code == .cancelled {
+            } catch {
+                self.modelDownloadError = L10n.t("settings.model.download.error", error.localizedDescription)
             }
         }
     }
@@ -347,6 +389,7 @@ private struct FileDropZone: View {
 private struct ModelPickerSection: View {
     @ObservedObject var controller: FileTranscriptionController
     let openSettings: () -> Void
+    @State private var confirmRecommendedDownload = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -359,14 +402,56 @@ private struct ModelPickerSection: View {
             } else {
                 Picker(L10n.t("file.model"), selection: $controller.selectedModel) {
                     ForEach(controller.installedModels) { model in
-                        Text(model.name).tag(model.name)
+                        Text(WhisperModelCatalog.info(for: model.name)?.displayName ?? model.name)
+                            .tag(model.name)
                     }
                 }
                 .labelsHidden()
                 .frame(maxWidth: .infinity)
             }
+
+            if !controller.hasRecommendedFileModel {
+                VStack(alignment: .leading, spacing: 8) {
+                    Label(L10n.t("file.model.recommended.title"), systemImage: "sparkles")
+                        .font(.callout.weight(.semibold))
+                    Text(L10n.t("file.model.recommended.text", controller.recommendedFileModel.sizeLabel))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    if controller.isDownloadingRecommendedModel {
+                        HStack(spacing: 8) {
+                            ProgressView().controlSize(.small)
+                            Text(L10n.t("file.model.recommended.downloading"))
+                                .font(.caption)
+                        }
+                    } else {
+                        Button(L10n.t("file.model.recommended.download")) {
+                            confirmRecommendedDownload = true
+                        }
+                    }
+                    if let error = controller.modelDownloadError {
+                        Text(error).font(.caption).foregroundStyle(.red)
+                    }
+                }
+                .padding(12)
+                .background(Color.accentColor.opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .confirmationDialog(
+            L10n.t("settings.model.confirm.title"),
+            isPresented: $confirmRecommendedDownload
+        ) {
+            Button(L10n.t("settings.model.confirm.download", controller.recommendedFileModel.sizeLabel)) {
+                controller.downloadRecommendedFileModel()
+            }
+            Button(L10n.t("common.cancel"), role: .cancel) {}
+        } message: {
+            Text(L10n.t(
+                "settings.model.confirm.message",
+                controller.recommendedFileModel.displayName,
+                controller.recommendedFileModel.sizeLabel))
+        }
     }
 }
 
@@ -482,7 +567,8 @@ private struct PreviewMetadata: View {
             if let source = controller.sourceURL {
                 Label(source.lastPathComponent, systemImage: "paperclip")
             }
-            Label(controller.selectedModel, systemImage: "cpu")
+            Label(WhisperModelCatalog.info(for: controller.selectedModel)?.displayName ?? controller.selectedModel,
+                  systemImage: "cpu")
             if let language = controller.detectedLanguage {
                 Label(language.uppercased(), systemImage: "globe")
             }

@@ -69,6 +69,10 @@
 "file.model" = "Модель";
 "file.noModels" = "Сначала скачайте модель Whisper в настройках.";
 "file.openSettings" = "Открыть настройки";
+"file.model.recommended.title" = "Лучшее качество для файлов";
+"file.model.recommended.text" = "Large v3 Turbo точнее распознаёт длинные записи. Загрузка — около %@, только один раз.";
+"file.model.recommended.download" = "Скачать Large v3 Turbo…";
+"file.model.recommended.downloading" = "Загрузка Large v3 Turbo…";
 "file.transcribe" = "Транскрибировать";
 "file.status.preparing" = "Подготовка аудиодорожки…";
 "file.status.transcribing" = "Распознавание речи…";
@@ -91,6 +95,12 @@
 
 /* Модели */
 "models.download.busy" = "Другая модель уже загружается.";
+"model.base.title" = "Быстро · Base";
+"model.base.description" = "Для микрофона по умолчанию — быстро и экономно";
+"model.small.title" = "Оптимально · Small";
+"model.small.description" = "Баланс скорости и точности";
+"model.large-v3-turbo.title" = "Максимум · Large v3 Turbo";
+"model.large-v3-turbo.description" = "Лучшее качество для аудио и видеофайлов";
 
 /* Пресеты улучшения */
 "refine.preset.rawTranscript" = "Исходная расшифровка";
@@ -133,6 +143,7 @@
 "settings.language.ui.system" = "Как в системе";
 
 "settings.model.installed" = "Установленные модели";
+"settings.model.microphone" = "Модель для диктовки с микрофона";
 "settings.model.none" = "Модели ещё не установлены. Скачайте одну из списка ниже.";
 "settings.model" = "Активная модель";
 "settings.model.notInstalled" = "%@ (не установлена)";

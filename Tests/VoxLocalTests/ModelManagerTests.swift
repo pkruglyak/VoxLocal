@@ -99,4 +99,11 @@ final class ModelManagerTests: XCTestCase {
     func testDefaultModelIsInCatalog() {
         XCTAssertNotNil(WhisperModelCatalog.info(for: WhisperModelCatalog.defaultModelName))
     }
+
+    func testCatalogExposesOnlyThreeRecommendedMultilingualModels() {
+        XCTAssertEqual(WhisperModelCatalog.models.map(\.name), ["base", "small", "large-v3-turbo"])
+        XCTAssertTrue(WhisperModelCatalog.models.allSatisfy(\.multilingual))
+        XCTAssertEqual(WhisperModelCatalog.microphoneDefaultModelName, "base")
+        XCTAssertEqual(WhisperModelCatalog.fileDefaultModelName, "large-v3-turbo")
+    }
 }

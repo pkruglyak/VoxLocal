@@ -180,11 +180,11 @@ public struct OnboardingView: View {
                 .foregroundStyle(.green)
         }
         // Compact catalog: recommended default plus alternates.
-        ForEach(WhisperModelCatalog.models.filter { ["tiny", "base", "small"].contains($0.name) }) { info in
+        ForEach(WhisperModelCatalog.models.filter { ["base", "small"].contains($0.name) }) { info in
             HStack {
                 Text(info.name == WhisperModelCatalog.defaultModelName
-                     ? L10n.t("onboarding.model.recommended", info.name)
-                     : info.name)
+                     ? L10n.t("onboarding.model.recommended", info.displayName)
+                     : info.displayName)
                 Spacer()
                 Text(info.sizeLabel).foregroundStyle(.secondary)
                 if installed.contains(where: { $0.name == info.name }) {

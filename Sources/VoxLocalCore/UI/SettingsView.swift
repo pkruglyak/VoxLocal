@@ -195,16 +195,27 @@ struct TranscriptionSettingsTab: View {
     @State private var confirmDownload: WhisperModelInfo?
     @State private var downloadError: String?
 
+    private var visibleInstalledModels: [ModelManager.InstalledModel] {
+        let recommended = WhisperModelCatalog.models.compactMap { info in
+            modelManager.installedModels.first { $0.name == info.name }
+        }
+        guard !recommended.isEmpty else { return modelManager.installedModels }
+        guard let legacySelection = modelManager.installedModels.first(where: {
+            $0.name == settings.whisperModel && !WhisperModelCatalog.isRecommended($0.name)
+        }) else { return recommended }
+        return recommended + [legacySelection]
+    }
+
     var body: some View {
         Form {
-            Section(L10n.t("settings.model.installed")) {
+            Section(L10n.t("settings.model.microphone")) {
                 if modelManager.installedModels.isEmpty {
                     Text(L10n.t("settings.model.none"))
                         .foregroundStyle(.secondary)
                 }
                 Picker(L10n.t("settings.model"), selection: $settings.whisperModel) {
-                    ForEach(modelManager.installedModels) { model in
-                        Text("\(model.name) (\(ByteCountFormatter.string(fromByteCount: model.sizeBytes, countStyle: .file)))")
+                    ForEach(visibleInstalledModels) { model in
+                        Text("\(WhisperModelCatalog.info(for: model.name)?.displayName ?? model.name) (\(ByteCountFormatter.string(fromByteCount: model.sizeBytes, countStyle: .file)))")
                             .tag(model.name)
                     }
                     if !modelManager.installedModels.contains(where: { $0.name == settings.whisperModel }) {
@@ -217,9 +228,10 @@ struct TranscriptionSettingsTab: View {
             Section(L10n.t("settings.model.download")) {
                 ForEach(WhisperModelCatalog.models) { info in
                     HStack {
-                        Text(info.name)
-                        if !info.multilingual {
-                            Text(L10n.t("settings.model.englishOnly"))
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(info.displayName)
+                                .fontWeight(.medium)
+                            Text(info.usageDescription)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }

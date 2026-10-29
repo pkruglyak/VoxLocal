@@ -21,24 +21,30 @@ public struct WhisperModelInfo: Identifiable, Hashable, Sendable {
             ? String(format: "%.1f GB", Double(approxMB) / 1000)
             : "\(approxMB) MB"
     }
+
+    public var displayName: String { L10n.t("model.\(name).title") }
+    public var usageDescription: String { L10n.t("model.\(name).description") }
 }
 
 public enum WhisperModelCatalog {
+    /// The three choices intentionally exposed in the regular UI. Older model
+    /// files remain on disk and can still be resolved, but they no longer make
+    /// the model screen look like an expert-only benchmark table.
     public static let models: [WhisperModelInfo] = [
-        WhisperModelInfo(name: "tiny", approxMB: 78, multilingual: true),
-        WhisperModelInfo(name: "tiny.en", approxMB: 78, multilingual: false),
         WhisperModelInfo(name: "base", approxMB: 148, multilingual: true),
-        WhisperModelInfo(name: "base.en", approxMB: 148, multilingual: false),
         WhisperModelInfo(name: "small", approxMB: 488, multilingual: true),
-        WhisperModelInfo(name: "small.en", approxMB: 488, multilingual: false),
-        WhisperModelInfo(name: "medium", approxMB: 1530, multilingual: true),
-        WhisperModelInfo(name: "large-v3", approxMB: 3100, multilingual: true),
         WhisperModelInfo(name: "large-v3-turbo", approxMB: 1620, multilingual: true),
     ]
 
-    public static let defaultModelName = "base"
+    public static let microphoneDefaultModelName = "base"
+    public static let fileDefaultModelName = "large-v3-turbo"
+    public static let defaultModelName = microphoneDefaultModelName
 
     public static func info(for name: String) -> WhisperModelInfo? {
         models.first { $0.name == name }
+    }
+
+    public static func isRecommended(_ name: String) -> Bool {
+        info(for: name) != nil
     }
 }
