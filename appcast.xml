@@ -6,6 +6,24 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
     <channel>
         <title>VoxLocal</title>
         <item>
+            <title>1.3.0</title>
+            <pubDate>Thu, 29 Oct 2026 17:16:13 +0300</pubDate>
+            <link>https://github.com/pkruglyak/VoxLocal</link>
+            <sparkle:version>6</sparkle:version>
+            <sparkle:shortVersionString>1.3.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description sparkle:format="markdown"><![CDATA[# VoxLocal 1.3.0
+
+- В настройках оставлены три понятных варианта Whisper: Base, Small и Large v3 Turbo.
+- Base используется по умолчанию для быстрой диктовки с микрофона.
+- Для аудио- и видеофайлов по умолчанию выбирается Large v3 Turbo, если модель установлена.
+- Если Large v3 Turbo ещё не установлена, её можно скачать прямо из окна транскрибации после подтверждения размера.
+- Старые скачанные модели не удаляются с компьютера.
+]]></description>
+            <enclosure url="https://github.com/pkruglyak/VoxLocal/releases/download/v1.3.0/VoxLocal-1.3.0.zip" length="3056240" type="application/octet-stream" sparkle:edSignature="qkXbTft6MOhdtIURuujxk601n8qUhGzsn8MiUfTqmThQxWR57RZVt9nL7HUgNai0/Vg+gv6JJ6pzg+mRQm1TDg=="/>
+        </item>
+        <item>
             <title>1.2.2</title>
             <pubDate>Thu, 29 Oct 2026 16:32:34 +0300</pubDate>
             <link>https://github.com/pkruglyak/VoxLocal</link>
@@ -37,26 +55,9 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
 ]]></description>
             <enclosure url="https://github.com/pkruglyak/VoxLocal/releases/download/v1.2.1/VoxLocal-1.2.1.zip" length="3055086" type="application/octet-stream" sparkle:edSignature="cJxWyK+kNj3ymRNStha65KdXuzTP2JbnCMFdlKb742ihq6foUMRiG9AJBkc42m1USIEyZ0/zG7LlHCMjImeqCw=="/>
         </item>
-        <item>
-            <title>1.2.0</title>
-            <pubDate>Thu, 29 Oct 2026 15:29:14 +0300</pubDate>
-            <link>https://github.com/pkruglyak/VoxLocal</link>
-            <sparkle:version>3</sparkle:version>
-            <sparkle:shortVersionString>1.2.0</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <description sparkle:format="markdown"><![CDATA[# VoxLocal 1.2.0
-
-- Добавлена транскрибация готовых аудио- и видеофайлов.
-- Добавлены выбор Whisper-модели, название документа и имена собеседников.
-- Добавлены редактируемый предпросмотр, копирование и сохранение в RTF.
-- Добавлены безопасные автоматические обновления и команда «Проверить обновления…».
-]]></description>
-            <enclosure url="https://github.com/pkruglyak/VoxLocal/releases/download/v1.2.0/VoxLocal-1.2.0.zip" length="3052667" type="application/octet-stream" sparkle:edSignature="xzzwWnw6VILvZ9NU65vDuJe+2GN8S+UsLprNu9i0A3VrpSAHFx0Er8kgnNKEgwy+LiHblDZANlGgFVrS+nFTAw=="/>
-        </item>
     </channel>
 </rss>
 <!-- sparkle-signatures:
-edSignature: 5qgNo97fMxSsqHlO7/BdqOwiJzeIZUqzwU4sDHEvdFosr8/lJaeSQLNOAR2Vqb8ma316fPZIsTwzfJa9FW5RAw==
-length: 4307
+edSignature: MaJYvHI9zmnPUVQ3ET1f79HCQctYueljvjTD1RgOXyT4P3aelQUwEuJHWS0ivNoMspuDkUg7LGBulyEJOUXoDQ==
+length: 4481
 -->
