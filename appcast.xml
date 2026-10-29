@@ -6,6 +6,21 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
     <channel>
         <title>VoxLocal</title>
         <item>
+            <title>1.3.1</title>
+            <pubDate>Thu, 29 Oct 2026 17:24:21 +0300</pubDate>
+            <link>https://github.com/pkruglyak/VoxLocal</link>
+            <sparkle:version>7</sparkle:version>
+            <sparkle:shortVersionString>1.3.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description sparkle:format="markdown"><![CDATA[# VoxLocal 1.3.1
+
+- Для выбранного аудио- или видеофайла добавлены явные кнопки «Заменить…» и «Удалить из окна».
+- Удаление очищает выбор в VoxLocal, но никогда не удаляет исходный файл с Mac.
+]]></description>
+            <enclosure url="https://github.com/pkruglyak/VoxLocal/releases/download/v1.3.1/VoxLocal-1.3.1.zip" length="3058810" type="application/octet-stream" sparkle:edSignature="Ya5r+WuNvIhkikY/qnTdbQp4P5/XAUIbys3Ej4j05X/FEzMY2sGkKd0qvklEFE55MHeGusXVK0O/pppj3dUACw=="/>
+        </item>
+        <item>
             <title>1.3.0</title>
             <pubDate>Thu, 29 Oct 2026 17:16:13 +0300</pubDate>
             <link>https://github.com/pkruglyak/VoxLocal</link>
@@ -39,25 +54,9 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
 ]]></description>
             <enclosure url="https://github.com/pkruglyak/VoxLocal/releases/download/v1.2.2/VoxLocal-1.2.2.zip" length="3039720" type="application/octet-stream" sparkle:edSignature="p4zMPRacY52eJuOAX26qwJ6OPerdhYt0SFOx8psmUxUMTXU40bMTGwKzTLDJIPZT40B5vHTeCdq6aGAjlvimAA=="/>
         </item>
-        <item>
-            <title>1.2.1</title>
-            <pubDate>Thu, 29 Oct 2026 16:11:38 +0300</pubDate>
-            <link>https://github.com/pkruglyak/VoxLocal</link>
-            <sparkle:version>4</sparkle:version>
-            <sparkle:shortVersionString>1.2.1</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <description sparkle:format="markdown"><![CDATA[# VoxLocal 1.2.1
-
-- Левая панель транскрибации выровнена по верхнему левому краю.
-- Поля и кнопки получили единую ширину и аккуратные отступы.
-- Область настройки стала шире, а предпросмотр корректно занимает оставшееся место.
-]]></description>
-            <enclosure url="https://github.com/pkruglyak/VoxLocal/releases/download/v1.2.1/VoxLocal-1.2.1.zip" length="3055086" type="application/octet-stream" sparkle:edSignature="cJxWyK+kNj3ymRNStha65KdXuzTP2JbnCMFdlKb742ihq6foUMRiG9AJBkc42m1USIEyZ0/zG7LlHCMjImeqCw=="/>
-        </item>
     </channel>
 </rss>
 <!-- sparkle-signatures:
-edSignature: MaJYvHI9zmnPUVQ3ET1f79HCQctYueljvjTD1RgOXyT4P3aelQUwEuJHWS0ivNoMspuDkUg7LGBulyEJOUXoDQ==
-length: 4481
+edSignature: 8qJQ+YlNKJovPtL4OTfm6QwjJxuFq2ko2iMbnfu/B8LdwQTEkVEoGpPh+Y5arlbFMgGUUq/4KggYSWE7T2/XBw==
+length: 4406
 -->
